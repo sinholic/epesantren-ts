@@ -227,28 +227,52 @@ Aplikasi menggunakan komponen UI reusable:
 
 ## 🚢 Deployment ke Vercel
 
-1. **Push code ke GitHub**
-   ```bash
-   git add .
-   git commit -m "Initial commit"
-   git push origin main
-   ```
+### Automatic Deployment dengan GitHub Actions
 
-2. **Import project ke Vercel**
+Repository ini sudah dikonfigurasi dengan GitHub Actions untuk otomatis deploy ke Vercel setiap ada push ke branch `main`.
+
+#### Setup GitHub Secrets
+
+Sebelum workflow bisa berjalan, setup secrets berikut di GitHub repository:
+
+1. **VERCEL_TOKEN** - Token dari [Vercel Settings > Tokens](https://vercel.com/account/tokens)
+2. **VERCEL_ORG_ID** - Organization ID dari Vercel (cek di `.vercel/project.json` setelah `vercel link`)
+3. **VERCEL_PROJECT_ID** - Project ID dari Vercel (cek di `.vercel/project.json`)
+4. **DATABASE_URL** - Database connection string
+5. **JWT_SECRET** - Secret key untuk JWT (minimal 32 karakter)
+
+Cara setup:
+- Buka GitHub repository > **Settings > Secrets and variables > Actions**
+- Klik **New repository secret**
+- Tambahkan semua secrets di atas
+
+#### Setup Vercel Project
+
+1. **Import project ke Vercel**
    - Buka https://vercel.com
    - Klik "New Project"
-   - Import repository
+   - Import repository `sinholic/epesantren-ts`
    - Vercel akan otomatis detect Next.js
 
-3. **Setup Environment Variables**
+2. **Setup Environment Variables**
    Di Vercel dashboard, tambahkan:
    - `DATABASE_URL` - Connection string database
    - `JWT_SECRET` - Secret key untuk JWT (generate random string)
    - `NODE_ENV` - Set ke `production`
 
+3. **Link Project (untuk mendapatkan IDs)**
+   ```bash
+   yarn global add vercel
+   vercel login
+   vercel link
+   ```
+   File `.vercel/project.json` akan dibuat dengan `orgId` dan `projectId`
+
 4. **Deploy**
-   - Vercel akan otomatis build dan deploy
-   - Setelah selesai, aplikasi akan live di URL yang diberikan
+   - Push ke branch `main` akan otomatis trigger deployment
+   - Atau deploy manual: `vercel --prod`
+
+📖 **Dokumentasi lengkap**: Lihat [DEPLOYMENT.md](./DEPLOYMENT.md) untuk detail setup dan troubleshooting.
 
 ## 🔄 Migration dari PHP
 
