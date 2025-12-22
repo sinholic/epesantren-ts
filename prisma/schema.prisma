@@ -1,0 +1,296 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model UserRole {
+  roleId    Int     @id @default(autoincrement()) @map("role_id")
+  roleName  String? @map("role_name") @db.VarChar(100)
+  users     User[]
+
+  @@map("user_roles")
+}
+
+model User {
+  userId          Int       @id @default(autoincrement()) @map("user_id")
+  userEmail       String?   @map("user_email") @db.VarChar(45)
+  userPassword    String?   @map("user_password") @db.VarChar(100)
+  userFullName    String?   @map("user_full_name") @db.VarChar(255)
+  userImage       String?   @map("user_image") @db.VarChar(255)
+  userDescription String?   @map("user_description") @db.Text
+  userRoleRoleId   Int?      @map("user_role_role_id")
+  userIsDeleted    Boolean   @default(false) @map("user_is_deleted")
+  userInputDate    DateTime? @map("user_input_date") @db.Timestamp(0)
+  userLastUpdate   DateTime? @default(now()) @updatedAt @map("user_last_update") @db.Timestamp(0)
+
+  role            UserRole? @relation(fields: [userRoleRoleId], references: [roleId], onDelete: SetNull, onUpdate: SetNull)
+  logs            Log[]
+  bulanPayments   Bulan[]
+  bebasPayments   BebasPay[]
+  kredits         Kredit[]
+  debits          Debit[]
+  informations    Information[]
+
+  @@map("users")
+}
+
+model Log {
+  logId     Int       @id @default(autoincrement()) @map("log_id")
+  logDate   DateTime? @map("log_date") @db.Timestamp(0)
+  logAction String?   @map("log_action") @db.VarChar(45)
+  logModule String?   @map("log_module") @db.VarChar(45)
+  logInfo   String?   @map("log_info") @db.Text
+  userId    Int?      @map("user_id")
+
+  user User? @relation(fields: [userId], references: [userId], onDelete: SetNull, onUpdate: SetNull)
+
+  @@map("logs")
+}
+
+model CiSession {
+  id        String   @id @db.VarChar(40)
+  ipAddress String   @map("ip_address") @db.VarChar(45)
+  timestamp Int      @default(0) @db.UnsignedInt
+  data      Bytes    @db.Blob
+
+  @@index([timestamp])
+  @@map("ci_sessions")
+}
+
+model Class {
+  classId   Int       @id @default(autoincrement()) @map("class_id")
+  className String?   @map("class_name") @db.VarChar(45)
+  students  Student[]
+
+  @@map("class")
+}
+
+model Major {
+  majorsId       Int       @id @default(autoincrement()) @map("majors_id")
+  majorsName     String?   @map("majors_name") @db.VarChar(100)
+  majorsShortName String?  @map("majors_short_name") @db.VarChar(45)
+  students       Student[]
+
+  @@map("majors")
+}
+
+model Student {
+  studentId          Int       @id @default(autoincrement()) @map("student_id")
+  studentNis         String?   @map("student_nis") @db.VarChar(45)
+  studentNisn        String?   @map("student_nisn") @db.VarChar(45)
+  studentPassword    String?   @map("student_password") @db.VarChar(100)
+  studentFullName    String?   @map("student_full_name") @db.VarChar(255)
+  studentGender      String?   @map("student_gender") @db.VarChar(1)
+  studentBornPlace   String?   @map("student_born_place") @db.VarChar(45)
+  studentBornDate    DateTime? @map("student_born_date") @db.Date
+  studentImg         String?   @map("student_img") @db.VarChar(255)
+  studentPhone       String?   @map("student_phone") @db.VarChar(45)
+  studentHobby       String?   @map("student_hobby") @db.VarChar(100)
+  studentAddress     String?   @map("student_address") @db.Text
+  studentNameOfMother String?  @map("student_name_of_mother") @db.VarChar(255)
+  studentNameOfFather String?  @map("student_name_of_father") @db.VarChar(255)
+  studentParentPhone String?   @map("student_parent_phone") @db.VarChar(45)
+  classClassId       Int?      @map("class_class_id")
+  majorsMajorsId     Int?      @map("majors_majors_id")
+  studentStatus      Boolean   @default(true) @map("student_status")
+  studentInputDate   DateTime? @map("student_input_date") @db.Timestamp(0)
+  studentLastUpdate  DateTime? @map("student_last_update") @db.Timestamp(0)
+
+  class            Class?    @relation(fields: [classClassId], references: [classId], onDelete: SetNull, onUpdate: SetNull)
+  major            Major?    @relation(fields: [majorsMajorsId], references: [majorsId], onDelete: NoAction, onUpdate: NoAction)
+  bebas            Bebas[]
+  bulan            Bulan[]
+  logTrxs          LogTrx[]
+
+  @@map("student")
+}
+
+model Period {
+  periodId     Int       @id @default(autoincrement()) @map("period_id")
+  periodStart  Int?      @map("period_start") @db.Year
+  periodEnd    Int?      @map("period_end") @db.Year
+  periodStatus Boolean   @default(false) @map("period_status")
+  payments     Payment[]
+
+  @@map("period")
+}
+
+model Pos {
+  posId          Int       @id @default(autoincrement()) @map("pos_id")
+  posName        String?   @map("pos_name") @db.VarChar(100)
+  posDescription String?   @map("pos_description") @db.VarChar(100)
+  payments       Payment[]
+
+  @@map("pos")
+}
+
+model Payment {
+  paymentId       Int       @id @default(autoincrement()) @map("payment_id")
+  paymentType     String?   @map("payment_type") @db.VarChar(10)
+  periodPeriodId  Int?      @map("period_period_id")
+  posPosId        Int?      @map("pos_pos_id")
+  paymentInputDate DateTime? @map("payment_input_date") @db.Timestamp(0)
+  paymentLastUpdate DateTime? @map("payment_last_update") @db.Timestamp(0)
+
+  period Period? @relation(fields: [periodPeriodId], references: [periodId], onDelete: SetNull, onUpdate: SetNull)
+  pos    Pos?    @relation(fields: [posPosId], references: [posId], onDelete: SetNull, onUpdate: SetNull)
+  bebas  Bebas[]
+  bulan  Bulan[]
+
+  @@map("payment")
+}
+
+model Bebas {
+  bebasId         Int       @id @default(autoincrement()) @map("bebas_id")
+  studentStudentId Int?    @map("student_student_id")
+  paymentPaymentId Int?    @map("payment_payment_id")
+  bebasBill       Decimal?  @map("bebas_bill") @db.Decimal(10, 2)
+  bebasTotalPay   Decimal? @default(0) @map("bebas_total_pay") @db.Decimal(10, 2)
+  bebasInputDate  DateTime? @map("bebas_input_date") @db.Timestamp(0)
+  bebasLastUpdate DateTime? @map("bebas_last_update") @db.Timestamp(0)
+
+  student Student? @relation(fields: [studentStudentId], references: [studentId], onDelete: SetNull, onUpdate: SetNull)
+  payment Payment? @relation(fields: [paymentPaymentId], references: [paymentId], onDelete: SetNull, onUpdate: SetNull)
+  bebasPays BebasPay[]
+
+  @@map("bebas")
+}
+
+model Month {
+  monthId   Int     @id @default(autoincrement()) @map("month_id")
+  monthName String? @map("month_name") @db.VarChar(45)
+  bulan     Bulan[]
+
+  @@map("month")
+}
+
+model Bulan {
+  bulanId         Int       @id @default(autoincrement()) @map("bulan_id")
+  studentStudentId Int?     @map("student_student_id")
+  paymentPaymentId Int?     @map("payment_payment_id")
+  monthMonthId    Int?      @map("month_month_id")
+  bulanBill       Decimal?  @map("bulan_bill") @db.Decimal(10, 2)
+  bulanStatus     Boolean   @default(false) @map("bulan_status")
+  bulanNumberPay  String?   @map("bulan_number_pay") @db.VarChar(100)
+  bulanDatePay    DateTime? @map("bulan_date_pay") @db.Date
+  userUserId      Int?      @map("user_user_id")
+  bulanInputDate  DateTime? @map("bulan_input_date") @db.Timestamp(0)
+  bulanLastUpdate DateTime? @map("bulan_last_update") @db.Timestamp(0)
+
+  student Student? @relation(fields: [studentStudentId], references: [studentId], onDelete: SetNull, onUpdate: SetNull)
+  payment Payment? @relation(fields: [paymentPaymentId], references: [paymentId], onDelete: SetNull, onUpdate: SetNull)
+  month   Month?   @relation(fields: [monthMonthId], references: [monthId], onDelete: NoAction, onUpdate: NoAction)
+  user    User?     @relation(fields: [userUserId], references: [userId], onDelete: SetNull, onUpdate: SetNull)
+  logTrxs LogTrx[]
+
+  @@map("bulan")
+}
+
+model BebasPay {
+  bebasPayId        Int       @id @default(autoincrement()) @map("bebas_pay_id")
+  bebasBebasId     Int?      @map("bebas_bebas_id")
+  bebasPayNumber   String?   @map("bebas_pay_number") @db.VarChar(100)
+  bebasPayBill     Decimal?  @map("bebas_pay_bill") @db.Decimal(10, 2)
+  bebasPayDesc     String?   @map("bebas_pay_desc") @db.VarChar(100)
+  userUserId       Int?      @map("user_user_id")
+  bebasPayInputDate DateTime? @map("bebas_pay_input_date") @db.Date
+  bebasPayLastUpdate DateTime? @map("bebas_pay_last_update") @db.Timestamp(0)
+
+  bebas Bebas? @relation(fields: [bebasBebasId], references: [bebasId], onDelete: SetNull, onUpdate: SetNull)
+  user  User?  @relation(fields: [userUserId], references: [userId], onDelete: SetNull, onUpdate: SetNull)
+  logTrxs LogTrx[]
+
+  @@map("bebas_pay")
+}
+
+model Setting {
+  settingId        Int       @id @default(autoincrement()) @map("setting_id")
+  settingName      String?   @map("setting_name") @db.VarChar(255)
+  settingValue     String?   @map("setting_value") @db.Text
+  settingLastUpdate DateTime? @map("setting_last_update") @db.Timestamp(0)
+
+  @@map("setting")
+}
+
+model Kredit {
+  kreditId        Int       @id @default(autoincrement()) @map("kredit_id")
+  kreditDate      DateTime? @map("kredit_date") @db.Date
+  kreditDesc      String?   @map("kredit_desc") @db.VarChar(100)
+  kreditValue     Decimal?  @map("kredit_value") @db.Decimal(10, 2)
+  userUserId      Int?      @map("user_user_id")
+  kreditInputDate DateTime? @map("kredit_input_date") @db.Timestamp(0)
+  kreditLastUpdate DateTime? @map("kredit_last_update") @db.Timestamp(0)
+
+  user User? @relation(fields: [userUserId], references: [userId], onDelete: SetNull, onUpdate: SetNull)
+
+  @@map("kredit")
+}
+
+model Debit {
+  debitId        Int       @id @default(autoincrement()) @map("debit_id")
+  debitDate      DateTime? @map("debit_date") @db.Date
+  debitDesc      String?   @map("debit_desc") @db.VarChar(100)
+  debitValue     Decimal?  @map("debit_value") @db.Decimal(10, 2)
+  userUserId     Int?      @map("user_user_id")
+  debitInputDate DateTime? @map("debit_input_date") @db.Timestamp(0)
+  debitLastUpdate DateTime? @map("debit_last_update") @db.Timestamp(0)
+
+  user User? @relation(fields: [userUserId], references: [userId], onDelete: SetNull, onUpdate: SetNull)
+
+  @@map("debit")
+}
+
+model Holiday {
+  id    Int       @id @default(autoincrement())
+  year  Int?      @db.Year
+  date  DateTime? @db.Date
+  info  String?   @db.VarChar(255)
+
+  @@map("holiday")
+}
+
+model Letter {
+  letterId    Int       @id @default(autoincrement()) @map("letter_id")
+  letterNumber String?  @map("letter_number") @db.VarChar(100)
+  letterMonth Int?
+  letterYear  Int?      @db.Year
+
+  @@map("letter")
+}
+
+model Information {
+  informationId        Int       @id @default(autoincrement()) @map("information_id")
+  informationTitle     String?   @map("information_title") @db.VarChar(100)
+  informationDesc      String?   @map("information_desc") @db.Text
+  informationImg       String?   @map("information_img") @db.VarChar(255)
+  informationPublish   Boolean   @default(false) @map("information_publish")
+  userUserId           Int?      @map("user_user_id")
+  informationInputDate DateTime? @map("information_input_date") @db.Timestamp(0)
+  informationLastUpdate DateTime? @map("information_last_update") @db.Timestamp(0)
+
+  user User? @relation(fields: [userUserId], references: [userId], onDelete: SetNull, onUpdate: SetNull)
+
+  @@map("information")
+}
+
+model LogTrx {
+  logTrxId            Int       @id @default(autoincrement()) @map("log_trx_id")
+  studentStudentId    Int?      @map("student_student_id")
+  bulanBulanId        Int?      @map("bulan_bulan_id")
+  bebasPayBebasPayId  Int?      @map("bebas_pay_bebas_pay_id")
+  logTrxInputDate     DateTime? @map("log_trx_input_date") @db.Timestamp(0)
+  logTrxLastUpdate    DateTime? @map("log_trx_last_update") @db.Timestamp(0)
+
+  student Student?  @relation(fields: [studentStudentId], references: [studentId], onDelete: SetNull, onUpdate: SetNull)
+  bulan   Bulan?    @relation(fields: [bulanBulanId], references: [bulanId], onDelete: SetNull, onUpdate: SetNull)
+  bebasPay BebasPay? @relation(fields: [bebasPayBebasPayId], references: [bebasPayId], onDelete: SetNull, onUpdate: SetNull)
+
+  @@map("log_trx")
+}
