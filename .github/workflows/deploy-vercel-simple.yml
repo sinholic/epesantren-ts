@@ -28,6 +28,11 @@ jobs:
       - name: Install Vercel CLI
         run: yarn global add vercel@latest
 
+      - name: Configure Git for Vercel
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
         env:

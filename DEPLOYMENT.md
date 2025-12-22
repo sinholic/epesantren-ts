@@ -81,15 +81,22 @@ vercel --prod
 
 ## Workflow Files
 
-Repository ini memiliki 2 workflow files:
+Repository ini memiliki 3 workflow files:
 
-### 1. `deploy-vercel.yml` (Recommended)
+### 1. `deploy-vercel.yml` (Recommended - but requires GitHub-Vercel connection)
 - Menggunakan Vercel GitHub Action
 - Lebih sederhana dan terintegrasi
 - Auto-deploy ke production
+- **Requires:** GitHub account connected to Vercel
 
-### 2. `deploy-vercel-simple.yml` (Alternative)
+### 2. `deploy-vercel-cli.yml` (Recommended - No Git Author Required)
 - Menggunakan Vercel CLI langsung
+- Tidak memerlukan git author access
+- Paling aman untuk GitHub Actions
+- **Use this if you get "git author access" error**
+
+### 3. `deploy-vercel-simple.yml` (Alternative)
+- Menggunakan Vercel CLI dengan prebuilt artifacts
 - Lebih fleksibel untuk custom build
 - Manual control lebih banyak
 
@@ -135,6 +142,33 @@ Pastikan semua environment variables sudah di-set di Vercel Dashboard:
 1. Cek Vercel logs di dashboard
 2. Pastikan `VERCEL_TOKEN`, `VERCEL_ORG_ID`, dan `VERCEL_PROJECT_ID` valid
 3. Pastikan project sudah di-link di Vercel
+
+### Error: "Deployment request did not have a git author with contributing access"
+Error ini terjadi ketika GitHub account yang digunakan untuk commit tidak terhubung dengan Vercel account.
+
+**Solusi 1: Connect GitHub Account ke Vercel (Recommended)**
+1. Login ke [Vercel Dashboard](https://vercel.com/dashboard)
+2. Buka [Settings > Git](https://vercel.com/account/git)
+3. Pastikan GitHub account sudah terhubung
+4. Jika belum, klik "Connect GitHub" dan authorize
+
+**Solusi 2: Gunakan Workflow CLI (Recommended untuk GitHub Actions)**
+Jika masih error, gunakan workflow `deploy-vercel-cli.yml` yang tidak memerlukan git author access:
+1. Disable atau rename `deploy-vercel.yml` (opsional)
+2. Rename `deploy-vercel-cli.yml` menjadi `deploy-vercel.yml` (atau biarkan keduanya aktif)
+3. Workflow CLI tidak memerlukan git author access dan lebih aman untuk GitHub Actions
+
+**Solusi 3: Gunakan Workflow Simple (Alternative)**
+Alternatif lain, gunakan workflow `deploy-vercel-simple.yml`:
+1. Rename atau disable `deploy-vercel.yml`
+2. Enable `deploy-vercel-simple.yml` (rename dari `deploy-vercel-simple.yml` ke `deploy-vercel.yml`)
+3. Workflow simple menggunakan prebuilt artifacts
+
+**Solusi 4: Setup Vercel Project via Dashboard**
+1. Import repository langsung dari Vercel Dashboard
+2. Vercel akan otomatis setup GitHub integration
+3. Set environment variables di Vercel Dashboard
+4. Deploy manual pertama kali, kemudian GitHub Actions akan bekerja
 
 ### Prisma Client Not Generated
 - Workflow sudah include step `yarn prisma:generate`
