@@ -12,15 +12,40 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const classes = await prisma.class.findMany({
-      orderBy: {
-        className: 'asc',
+    const { searchParams } = new URL(request.url)
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '10')
+    const skip = (page - 1) * limit
+    const search = searchParams.get('search')
+
+    const where: any = {}
+    if (search) {
+      where.posName = { contains: search }
+    }
+
+    const [pos, total] = await Promise.all([
+      prisma.pos.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: {
+          posId: 'desc',
+        },
+      }),
+      prisma.pos.count({ where }),
+    ])
+
+    return NextResponse.json({
+      pos,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
       },
     })
-
-    return NextResponse.json({ classes })
   } catch (error) {
-    console.error('Get classes error:', error)
+    console.error('Get POS error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -39,24 +64,25 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { className } = body
+    const { posName, posDescription } = body
 
-    if (!className) {
+    if (!posName) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       )
     }
 
-    const classData = await prisma.class.create({
+    const pos = await prisma.pos.create({
       data: {
-        className,
+        posName,
+        posDescription,
       },
     })
 
-    return NextResponse.json({ class: classData }, { status: 201 })
+    return NextResponse.json({ pos }, { status: 201 })
   } catch (error) {
-    console.error('Create class error:', error)
+    console.error('Create POS error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

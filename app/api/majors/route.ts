@@ -27,3 +27,40 @@ export async function GET(request: NextRequest) {
     )
   }
 }
+
+export async function POST(request: NextRequest) {
+  try {
+    const authResult = await requireAuth(request)
+    if (!authResult.success) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    const body = await request.json()
+    const { majorsName, majorsShortName } = body
+
+    if (!majorsName || !majorsShortName) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      )
+    }
+
+    const major = await prisma.major.create({
+      data: {
+        majorsName,
+        majorsShortName,
+      },
+    })
+
+    return NextResponse.json({ major }, { status: 201 })
+  } catch (error) {
+    console.error('Create major error:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
