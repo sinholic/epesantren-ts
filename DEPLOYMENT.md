@@ -143,6 +143,26 @@ Pastikan semua environment variables sudah di-set di Vercel Dashboard:
 2. Pastikan `VERCEL_TOKEN`, `VERCEL_ORG_ID`, dan `VERCEL_PROJECT_ID` valid
 3. Pastikan project sudah di-link di Vercel
 
+### Error: "Environment Variable references Secret which does not exist"
+Error ini terjadi ketika di Vercel Dashboard, environment variable di-set untuk reference ke secret yang tidak ada.
+
+**Solusi:**
+1. Buka [Vercel Dashboard](https://vercel.com/dashboard)
+2. Pilih project `epesantren-ts`
+3. Buka **Settings > Environment Variables**
+4. Cek semua environment variables:
+   - Jika ada yang menggunakan format `@secret_name` atau reference ke secrets, **hapus** dan buat ulang
+   - Buat environment variable baru dengan:
+     - Name: `DATABASE_URL`
+     - Value: langsung paste connection string (bukan reference ke secret)
+     - Environment: Production, Preview, Development
+   - Buat environment variable baru dengan:
+     - Name: `JWT_SECRET`
+     - Value: langsung paste secret key (bukan reference ke secret)
+     - Environment: Production, Preview, Development
+5. **PENTING:** Environment variables harus di-set dengan value langsung, bukan reference ke secrets
+6. Setelah di-update, trigger deployment baru (push ke main atau redeploy dari dashboard)
+
 ### Error: "Deployment request did not have a git author with contributing access"
 Error ini terjadi ketika GitHub account yang digunakan untuk commit tidak terhubung dengan Vercel account.
 
