@@ -4,7 +4,7 @@ import { requireAuth } from '@/lib/middleware'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -15,8 +15,9 @@ export async function GET(
       )
     }
 
+    const { id } = await params
     const classData = await prisma.class.findUnique({
-      where: { classId: parseInt(params.id) },
+      where: { classId: parseInt(id) },
     })
 
     if (!classData) {
@@ -38,7 +39,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -49,6 +50,7 @@ export async function PUT(
       )
     }
 
+    const { id } = await params
     const body = await request.json()
     const { className } = body
 
@@ -60,7 +62,7 @@ export async function PUT(
     }
 
     const classData = await prisma.class.update({
-      where: { classId: parseInt(params.id) },
+      where: { classId: parseInt(id) },
       data: { className },
     })
 
@@ -76,7 +78,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -87,9 +89,10 @@ export async function DELETE(
       )
     }
 
+    const { id } = await params
     // Check if class has students
     const students = await prisma.student.count({
-      where: { classClassId: parseInt(params.id) },
+      where: { classClassId: parseInt(id) },
     })
 
     if (students > 0) {
@@ -100,7 +103,7 @@ export async function DELETE(
     }
 
     await prisma.class.delete({
-      where: { classId: parseInt(params.id) },
+      where: { classId: parseInt(id) },
     })
 
     return NextResponse.json({ success: true })

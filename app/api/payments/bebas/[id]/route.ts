@@ -4,7 +4,7 @@ import { requireAuth } from '@/lib/middleware'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -15,8 +15,9 @@ export async function GET(
       )
     }
 
+    const { id } = await params
     const bebas = await prisma.bebas.findUnique({
-      where: { bebasId: parseInt(params.id) },
+      where: { bebasId: parseInt(id) },
       include: {
         student: true,
         payment: true,
@@ -47,7 +48,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -58,6 +59,7 @@ export async function PUT(
       )
     }
 
+    const { id } = await params
     const body = await request.json()
     const {
       studentStudentId,
@@ -75,7 +77,7 @@ export async function PUT(
     updateData.bebasLastUpdate = new Date()
 
     const bebas = await prisma.bebas.update({
-      where: { bebasId: parseInt(params.id) },
+      where: { bebasId: parseInt(id) },
       data: updateData,
       include: {
         student: true,
@@ -100,7 +102,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -111,9 +113,10 @@ export async function DELETE(
       )
     }
 
+    const { id } = await params
     // Check if bebas has payments
     const bebasPays = await prisma.bebasPay.count({
-      where: { bebasBebasId: parseInt(params.id) },
+      where: { bebasBebasId: parseInt(id) },
     })
 
     if (bebasPays > 0) {
@@ -124,7 +127,7 @@ export async function DELETE(
     }
 
     await prisma.bebas.delete({
-      where: { bebasId: parseInt(params.id) },
+      where: { bebasId: parseInt(id) },
     })
 
     return NextResponse.json({ success: true })

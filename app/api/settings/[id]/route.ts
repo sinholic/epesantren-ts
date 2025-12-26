@@ -4,7 +4,7 @@ import { requireAuth } from '@/lib/middleware'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -15,8 +15,9 @@ export async function GET(
       )
     }
 
+    const { id } = await params
     const setting = await prisma.setting.findUnique({
-      where: { settingId: parseInt(params.id) },
+      where: { settingId: parseInt(id) },
     })
 
     if (!setting) {
@@ -38,7 +39,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -49,6 +50,7 @@ export async function PUT(
       )
     }
 
+    const { id } = await params
     const body = await request.json()
     const { settingName, settingValue } = body
 
@@ -58,7 +60,7 @@ export async function PUT(
     updateData.settingLastUpdate = new Date()
 
     const setting = await prisma.setting.update({
-      where: { settingId: parseInt(params.id) },
+      where: { settingId: parseInt(id) },
       data: updateData,
     })
 
@@ -74,7 +76,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -85,8 +87,9 @@ export async function DELETE(
       )
     }
 
+    const { id } = await params
     await prisma.setting.delete({
-      where: { settingId: parseInt(params.id) },
+      where: { settingId: parseInt(id) },
     })
 
     return NextResponse.json({ success: true })

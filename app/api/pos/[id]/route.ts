@@ -4,7 +4,7 @@ import { requireAuth } from '@/lib/middleware'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -15,8 +15,9 @@ export async function GET(
       )
     }
 
+    const { id } = await params
     const pos = await prisma.pos.findUnique({
-      where: { posId: parseInt(params.id) },
+      where: { posId: parseInt(id) },
     })
 
     if (!pos) {
@@ -38,7 +39,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -49,6 +50,7 @@ export async function PUT(
       )
     }
 
+    const { id } = await params
     const body = await request.json()
     const { posName, posDescription } = body
 
@@ -57,7 +59,7 @@ export async function PUT(
     if (posDescription !== undefined) updateData.posDescription = posDescription
 
     const pos = await prisma.pos.update({
-      where: { posId: parseInt(params.id) },
+      where: { posId: parseInt(id) },
       data: updateData,
     })
 
@@ -73,7 +75,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -84,9 +86,10 @@ export async function DELETE(
       )
     }
 
+    const { id } = await params
     // Check if POS has payments
     const payments = await prisma.payment.count({
-      where: { posPosId: parseInt(params.id) },
+      where: { posPosId: parseInt(id) },
     })
 
     if (payments > 0) {
@@ -97,7 +100,7 @@ export async function DELETE(
     }
 
     await prisma.pos.delete({
-      where: { posId: parseInt(params.id) },
+      where: { posId: parseInt(id) },
     })
 
     return NextResponse.json({ success: true })

@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -16,8 +16,9 @@ export async function GET(
       )
     }
 
+    const { id } = await params
     const user = await prisma.user.findUnique({
-      where: { userId: parseInt(params.id) },
+      where: { userId: parseInt(id) },
       include: {
         role: true,
       },
@@ -42,7 +43,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -53,6 +54,7 @@ export async function PUT(
       )
     }
 
+    const { id } = await params
     const body = await request.json()
     const {
       userEmail,
@@ -72,7 +74,7 @@ export async function PUT(
         where: {
           userEmail,
           userIsDeleted: false,
-          userId: { not: parseInt(params.id) },
+          userId: { not: parseInt(id) },
         },
       })
 
@@ -91,7 +93,7 @@ export async function PUT(
     updateData.userLastUpdate = new Date()
 
     const user = await prisma.user.update({
-      where: { userId: parseInt(params.id) },
+      where: { userId: parseInt(id) },
       data: updateData,
       include: {
         role: true,
@@ -110,7 +112,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -121,8 +123,9 @@ export async function DELETE(
       )
     }
 
+    const { id } = await params
     await prisma.user.update({
-      where: { userId: parseInt(params.id) },
+      where: { userId: parseInt(id) },
       data: { userIsDeleted: true, userLastUpdate: new Date() },
     })
 

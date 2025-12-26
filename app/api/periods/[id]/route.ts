@@ -4,7 +4,7 @@ import { requireAuth } from '@/lib/middleware'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -15,8 +15,9 @@ export async function GET(
       )
     }
 
+    const { id } = await params
     const period = await prisma.period.findUnique({
-      where: { periodId: parseInt(params.id) },
+      where: { periodId: parseInt(id) },
     })
 
     if (!period) {
@@ -38,7 +39,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -49,6 +50,7 @@ export async function PUT(
       )
     }
 
+    const { id } = await params
     const body = await request.json()
     const { periodStart, periodEnd, periodStatus } = body
 
@@ -61,7 +63,7 @@ export async function PUT(
         await prisma.period.updateMany({
           where: {
             periodStatus: true,
-            periodId: { not: parseInt(params.id) },
+            periodId: { not: parseInt(id) },
           },
           data: { periodStatus: false },
         })
@@ -70,7 +72,7 @@ export async function PUT(
     }
 
     const period = await prisma.period.update({
-      where: { periodId: parseInt(params.id) },
+      where: { periodId: parseInt(id) },
       data: updateData,
     })
 
@@ -86,7 +88,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -97,9 +99,10 @@ export async function DELETE(
       )
     }
 
+    const { id } = await params
     // Check if period has payments
     const payments = await prisma.payment.count({
-      where: { periodPeriodId: parseInt(params.id) },
+      where: { periodPeriodId: parseInt(id) },
     })
 
     if (payments > 0) {
@@ -110,7 +113,7 @@ export async function DELETE(
     }
 
     await prisma.period.delete({
-      where: { periodId: parseInt(params.id) },
+      where: { periodId: parseInt(id) },
     })
 
     return NextResponse.json({ success: true })

@@ -4,7 +4,7 @@ import { requireAuth } from '@/lib/middleware'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -15,8 +15,9 @@ export async function GET(
       )
     }
 
+    const { id } = await params
     const student = await prisma.student.findUnique({
-      where: { studentId: parseInt(params.id) },
+      where: { studentId: parseInt(id) },
       include: {
         class: true,
         major: true,
@@ -42,7 +43,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -53,6 +54,7 @@ export async function PUT(
       )
     }
 
+    const { id } = await params
     const body = await request.json()
     const {
       studentNis,
@@ -74,7 +76,7 @@ export async function PUT(
     if (studentStatus !== undefined) updateData.studentStatus = studentStatus
 
     const student = await prisma.student.update({
-      where: { studentId: parseInt(params.id) },
+      where: { studentId: parseInt(id) },
       data: updateData,
     })
 
@@ -90,7 +92,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authResult = await requireAuth(request)
@@ -101,8 +103,9 @@ export async function DELETE(
       )
     }
 
+    const { id } = await params
     await prisma.student.update({
-      where: { studentId: parseInt(params.id) },
+      where: { studentId: parseInt(id) },
       data: { studentStatus: false },
     })
 
