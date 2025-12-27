@@ -18,7 +18,7 @@ Migration dari MySQL ke PostgreSQL untuk aplikasi E-Pesantren sudah selesai. Sem
   - `Jurnal` - Journal management
 - ✅ Updated relations untuk semua models
 
-### 2. Migration SQL Script (`prisma/migrations/migrate_mysql_to_postgres.sql`)
+### 2. Migration SQL Script (`scripts/migrations/migrate_mysql_to_postgres.sql`)
 - ✅ Converted 3 stored procedures ke PostgreSQL functions:
   1. `insert_debit_from_bulan()` - Insert debit dari bulan payments
   2. `update_participant_id_ppdb_bayar()` - Update participant ID

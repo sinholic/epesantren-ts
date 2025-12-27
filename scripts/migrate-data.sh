@@ -61,7 +61,7 @@ fi
 # Step 3: Run PostgreSQL migration schema
 echo -e "${YELLOW}Step 3: Running PostgreSQL migration schema...${NC}"
 PGPASSWORD="$PG_PASS" psql -h "$PG_HOST" -U "$PG_USER" -d "$PG_DB" \
-  -f prisma/migrations/migrate_mysql_to_postgres.sql
+  -f scripts/migrations/migrate_mysql_to_postgres.sql
 
 if [ $? -eq 0 ]; then
   echo -e "${GREEN}✓ PostgreSQL schema migration completed${NC}"
