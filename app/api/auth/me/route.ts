@@ -2,10 +2,18 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/middleware'
 import { prisma } from '@/lib/prisma'
 
-async function handler(req: any) {
+export async function GET(request: NextRequest) {
   try {
+    const authResult = await requireAuth(request)
+    if (!authResult.success || !authResult.user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
     const user = await prisma.user.findUnique({
-      where: { userId: req.user.userId },
+      where: { userId: authResult.user.userId },
       select: {
         userId: true,
         userEmail: true,
@@ -46,5 +54,3 @@ async function handler(req: any) {
     )
   }
 }
-
-export const GET = requireAuth(handler)

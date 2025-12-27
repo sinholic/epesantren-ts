@@ -22,53 +22,53 @@ export function getAuthToken(request: NextRequest): string | null {
   return token || null
 }
 
-export function requireAuth(
-  handler: (req: AuthenticatedRequest) => Promise<NextResponse>
-) {
-  return async (req: NextRequest) => {
-    const token = getAuthToken(req)
-    
-    if (!token) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
-
-    const user = verifyToken(token)
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Invalid token' },
-        { status: 401 }
-      )
-    }
-
-    const authenticatedReq = req as AuthenticatedRequest
-    authenticatedReq.user = user
-
-    return handler(authenticatedReq)
+export async function requireAuth(request: NextRequest): Promise<{
+  success: boolean
+  user?: {
+    userId: number
+    userEmail: string | null
+    userFullName: string | null
+    userRoleRoleId: number | null
   }
+}> {
+  const token = getAuthToken(request)
+  
+  if (!token) {
+    return { success: false }
+  }
+
+  const user = verifyToken(token)
+  if (!user) {
+    return { success: false }
+  }
+
+  return { success: true, user }
 }
 
 export function requireRole(
   allowedRoles: number[],
   handler: (req: AuthenticatedRequest) => Promise<NextResponse>
 ) {
-  return requireAuth(async (req) => {
-    if (!req.user || !req.user.userRoleRoleId) {
+  return async (req: NextRequest) => {
+    const authResult = await requireAuth(req)
+    
+    if (!authResult.success || !authResult.user) {
       return NextResponse.json(
-        { error: 'Forbidden' },
-        { status: 403 }
+        { error: 'Unauthorized' },
+        { status: 401 }
       )
     }
 
-    if (!allowedRoles.includes(req.user.userRoleRoleId)) {
+    if (!authResult.user.userRoleRoleId || !allowedRoles.includes(authResult.user.userRoleRoleId)) {
       return NextResponse.json(
         { error: 'Forbidden: Insufficient permissions' },
         { status: 403 }
       )
     }
 
-    return handler(req)
-  })
+    const authenticatedReq = req as AuthenticatedRequest
+    authenticatedReq.user = authResult.user
+
+    return handler(authenticatedReq)
+  }
 }
