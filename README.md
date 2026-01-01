@@ -78,7 +78,21 @@ Aplikasi sistem informasi manajemen pesantren yang telah direfactor dari PHP (Co
    yarn prisma:migrate
    ```
 
-5. **Run development server**
+5. **Setup MySQL Stored Procedures** (Optional)
+   
+   Jika database sudah ada dan perlu stored procedures, jalankan:
+   ```bash
+   mysql -u username -p database_name < scripts/migrations/mysql_stored_procedures.sql
+   ```
+   
+   Stored procedures yang tersedia:
+   - `InsertDebitFromBulan()` - Insert debit dari bulan payments
+   - `UpdateParticipantIdPpdbBayar()` - Update participant ID di ppdb_bayar
+   - `update_bebas_total_pay()` - Update total payment di bebas
+   
+   Lihat `MIGRATION_SUMMARY.md` untuk detail lebih lengkap.
+
+6. **Run development server**
    ```bash
    yarn dev
    ```

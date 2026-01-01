@@ -54,11 +54,44 @@ File `prisma/schema.prisma` sudah dikonfigurasi untuk MySQL dengan:
 
 ## Stored Procedures
 
-Database MySQL memiliki stored procedures yang perlu dijalankan:
+Database MySQL memiliki stored procedures yang perlu dijalankan. File SQL untuk stored procedures ada di:
+- `scripts/migrations/mysql_stored_procedures.sql`
+
+### Stored Procedures yang tersedia:
 
 1. **InsertDebitFromBulan** - Insert debit dari bulan payments
+   - Menambahkan record debit dari tabel `bulan` yang sudah dibayar
+   - Menghindari duplikasi dengan mengecek kombinasi `student_id` dan `debit_date`
+
 2. **UpdateParticipantIdPpdbBayar** - Update participant ID di ppdb_bayar
+   - Mengupdate `ppdb_participant_id` di tabel `ppdb_bayar` berdasarkan `nisn`
+
 3. **update_bebas_total_pay** - Update total payment di bebas
+   - Menghitung dan mengupdate total pembayaran di tabel `bebas` dari `bebas_pay`
+   - Hanya menghitung pembayaran dengan `jurnal_id = 0`
+
+### Cara menjalankan stored procedures:
+
+```bash
+# Login ke MySQL
+mysql -u username -p database_name
+
+# Atau langsung dari command line
+mysql -u username -p database_name < scripts/migrations/mysql_stored_procedures.sql
+```
+
+### Cara memanggil stored procedures:
+
+```sql
+-- Insert debit from bulan
+CALL InsertDebitFromBulan();
+
+-- Update participant ID
+CALL UpdateParticipantIdPpdbBayar();
+
+-- Update bebas total pay
+CALL update_bebas_total_pay();
+```
 
 ## Setup Instructions
 
