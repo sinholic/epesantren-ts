@@ -6,7 +6,7 @@ Aplikasi sistem informasi manajemen pesantren yang telah direfactor dari PHP (Co
 
 - **Framework**: Next.js 16 (App Router)
 - **Language**: TypeScript
-- **Database**: PostgreSQL dengan Prisma ORM
+- **Database**: MySQL dengan Prisma ORM
 - **Authentication**: JWT (JSON Web Tokens)
 - **Styling**: Tailwind CSS
 - **Deployment**: Vercel
@@ -41,7 +41,7 @@ Aplikasi sistem informasi manajemen pesantren yang telah direfactor dari PHP (Co
 
 - Node.js 20+ (atau versi yang didukung)
 - Yarn package manager
-- PostgreSQL database
+- MySQL database
 - Vercel account (untuk deployment)
 
 ## 🛠️ Setup Development

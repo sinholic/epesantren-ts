@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -25,10 +25,10 @@ model User {
   userFullName    String?   @map("user_full_name") @db.VarChar(255)
   userImage       String?   @map("user_image") @db.VarChar(255)
   userDescription String?   @map("user_description") @db.Text
-  userRoleRoleId   Int?      @map("user_role_role_id")
+  userRoleRoleId   Int?      @map("user_role_role_id") @db.UnsignedInt
   userIsDeleted    Boolean   @default(false) @map("user_is_deleted")
-  userInputDate    DateTime? @map("user_input_date") @db.Timestamp
-  userLastUpdate   DateTime? @default(now()) @updatedAt @map("user_last_update") @db.Timestamp
+  userInputDate    DateTime? @map("user_input_date") @db.Timestamp(0)
+  userLastUpdate   DateTime? @default(now()) @updatedAt @map("user_last_update") @db.Timestamp(0)
 
   role            UserRole? @relation(fields: [userRoleRoleId], references: [roleId], onDelete: SetNull, onUpdate: SetNull)
   logs            Log[]
@@ -43,11 +43,11 @@ model User {
 
 model Log {
   logId     Int       @id @default(autoincrement()) @map("log_id")
-  logDate   DateTime? @map("log_date") @db.Timestamp
+  logDate   DateTime? @map("log_date") @db.Timestamp(0)
   logAction String?   @map("log_action") @db.VarChar(45)
   logModule String?   @map("log_module") @db.VarChar(45)
   logInfo   String?   @map("log_info") @db.Text
-  userId    Int?      @map("user_id")
+  userId    Int?      @map("user_id") @db.UnsignedInt
 
   user User? @relation(fields: [userId], references: [userId], onDelete: SetNull, onUpdate: SetNull)
 
@@ -58,7 +58,7 @@ model CiSession {
   id        String   @id @db.VarChar(40)
   ipAddress String   @map("ip_address") @db.VarChar(45)
   timestamp Int      @default(0)
-  data      Bytes    @db.ByteA
+  data      Bytes    @db.Blob
 
   @@index([timestamp])
   @@map("ci_sessions")
@@ -100,8 +100,8 @@ model Student {
   classClassId       Int?      @map("class_class_id")
   majorsMajorsId     Int?      @map("majors_majors_id")
   studentStatus      Boolean   @default(true) @map("student_status")
-  studentInputDate   DateTime? @map("student_input_date") @db.Timestamp
-  studentLastUpdate  DateTime? @map("student_last_update") @db.Timestamp
+  studentInputDate   DateTime? @map("student_input_date") @db.Timestamp(0)
+  studentLastUpdate  DateTime? @map("student_last_update") @db.Timestamp(0)
 
   class            Class?    @relation(fields: [classClassId], references: [classId], onDelete: SetNull, onUpdate: SetNull)
   major            Major?    @relation(fields: [majorsMajorsId], references: [majorsId], onDelete: NoAction, onUpdate: NoAction)
@@ -115,8 +115,8 @@ model Student {
 
 model Period {
   periodId     Int       @id @default(autoincrement()) @map("period_id")
-  periodStart  Int?      @map("period_start")
-  periodEnd    Int?      @map("period_end")
+  periodStart  Int?      @map("period_start") @db.Year
+  periodEnd    Int?      @map("period_end") @db.Year
   periodStatus Boolean   @default(false) @map("period_status")
   payments     Payment[]
 
@@ -139,8 +139,8 @@ model Payment {
   paymentType     String?   @map("payment_type") @db.VarChar(10)
   periodPeriodId  Int?      @map("period_period_id")
   posPosId        Int?      @map("pos_pos_id")
-  paymentInputDate DateTime? @map("payment_input_date") @db.Timestamp
-  paymentLastUpdate DateTime? @map("payment_last_update") @db.Timestamp
+  paymentInputDate DateTime? @map("payment_input_date") @db.Timestamp(0)
+  paymentLastUpdate DateTime? @map("payment_last_update") @db.Timestamp(0)
 
   period Period? @relation(fields: [periodPeriodId], references: [periodId], onDelete: SetNull, onUpdate: SetNull)
   pos    Pos?    @relation(fields: [posPosId], references: [posId], onDelete: SetNull, onUpdate: SetNull)
@@ -156,8 +156,8 @@ model Bebas {
   paymentPaymentId Int?    @map("payment_payment_id")
   bebasBill       Decimal?  @map("bebas_bill") @db.Decimal(10, 2)
   bebasTotalPay   Decimal? @default(0) @map("bebas_total_pay") @db.Decimal(10, 2)
-  bebasInputDate  DateTime? @map("bebas_input_date") @db.Timestamp
-  bebasLastUpdate DateTime? @map("bebas_last_update") @db.Timestamp
+  bebasInputDate  DateTime? @map("bebas_input_date") @db.Timestamp(0)
+  bebasLastUpdate DateTime? @map("bebas_last_update") @db.Timestamp(0)
 
   student Student? @relation(fields: [studentStudentId], references: [studentId], onDelete: SetNull, onUpdate: SetNull)
   payment Payment? @relation(fields: [paymentPaymentId], references: [paymentId], onDelete: SetNull, onUpdate: SetNull)
@@ -183,9 +183,9 @@ model Bulan {
   bulanStatus     Boolean   @default(false) @map("bulan_status")
   bulanNumberPay  String?   @map("bulan_number_pay") @db.VarChar(100)
   bulanDatePay    DateTime? @map("bulan_date_pay") @db.Date
-  userUserId      Int?      @map("user_user_id")
-  bulanInputDate  DateTime? @map("bulan_input_date") @db.Timestamp
-  bulanLastUpdate DateTime? @map("bulan_last_update") @db.Timestamp
+  userUserId      Int?      @map("user_user_id") @db.UnsignedInt
+  bulanInputDate  DateTime? @map("bulan_input_date") @db.Timestamp(0)
+  bulanLastUpdate DateTime? @map("bulan_last_update") @db.Timestamp(0)
 
   student Student? @relation(fields: [studentStudentId], references: [studentId], onDelete: SetNull, onUpdate: SetNull)
   payment Payment? @relation(fields: [paymentPaymentId], references: [paymentId], onDelete: SetNull, onUpdate: SetNull)
@@ -204,8 +204,8 @@ model BebasPay {
   bebasPayDesc     String?   @map("bebas_pay_desc") @db.VarChar(100)
   userUserId       Int?      @map("user_user_id")
   bebasPayInputDate DateTime? @map("bebas_pay_input_date") @db.Date
-  bebasPayLastUpdate DateTime? @map("bebas_pay_last_update") @db.Timestamp
-  jurnalId         Int?      @default(0) @map("jurnal_id")
+  bebasPayLastUpdate DateTime? @map("bebas_pay_last_update") @db.Timestamp(0)
+  jurnalId         Int?      @default(0) @map("jurnal_id") @db.UnsignedInt
 
   bebas Bebas? @relation(fields: [bebasBebasId], references: [bebasId], onDelete: SetNull, onUpdate: SetNull)
   user  User?  @relation(fields: [userUserId], references: [userId], onDelete: SetNull, onUpdate: SetNull)
@@ -218,7 +218,7 @@ model Setting {
   settingId        Int       @id @default(autoincrement()) @map("setting_id")
   settingName      String?   @map("setting_name") @db.VarChar(255)
   settingValue     String?   @map("setting_value") @db.Text
-  settingLastUpdate DateTime? @map("setting_last_update") @db.Timestamp
+  settingLastUpdate DateTime? @map("setting_last_update") @db.Timestamp(0)
 
   @@map("setting")
 }
@@ -228,9 +228,9 @@ model Kredit {
   kreditDate      DateTime? @map("kredit_date") @db.Date
   kreditDesc      String?   @map("kredit_desc") @db.VarChar(100)
   kreditValue     Decimal?  @map("kredit_value") @db.Decimal(10, 2)
-  userUserId      Int?      @map("user_user_id")
-  kreditInputDate DateTime? @map("kredit_input_date") @db.Timestamp
-  kreditLastUpdate DateTime? @map("kredit_last_update") @db.Timestamp
+  userUserId      Int?      @map("user_user_id") @db.UnsignedInt
+  kreditInputDate DateTime? @map("kredit_input_date") @db.Timestamp(0)
+  kreditLastUpdate DateTime? @map("kredit_last_update") @db.Timestamp(0)
 
   user User? @relation(fields: [userUserId], references: [userId], onDelete: SetNull, onUpdate: SetNull)
 
@@ -242,16 +242,16 @@ model Debit {
   debitDate          DateTime? @map("debit_date") @db.Date
   debitDesc          String?   @map("debit_desc") @db.VarChar(100)
   debitValue         Decimal?  @map("debit_value") @db.Decimal(10, 2)
-  userUserId         Int?      @map("user_user_id")
-  debitInputDate     DateTime? @map("debit_input_date") @db.Timestamp
-  debitLastUpdate    DateTime? @map("debit_last_update") @db.Timestamp
-  accountId          Int?      @map("account_id")
-  studentId          Int?      @map("student_id")
+  userUserId         Int?      @map("user_user_id") @db.UnsignedInt
+  debitInputDate     DateTime? @map("debit_input_date") @db.Timestamp(0)
+  debitLastUpdate    DateTime? @map("debit_last_update") @db.Timestamp(0)
+  accountId          Int?      @map("account_id") @db.UnsignedInt
+  studentId          Int?      @map("student_id") @db.UnsignedInt
   recipient          String?   @map("recipient") @db.VarChar(150)
-  posId              Int?      @map("pos_id")
-  jurnalId           Int?      @map("jurnal_id")
+  posId              Int?      @map("pos_id") @db.UnsignedInt
+  jurnalId           Int?      @map("jurnal_id") @db.UnsignedInt
   ppdbNisn           String?   @map("ppdb_nisn") @db.Char(20)
-  ppdbParticipantId  Int?      @map("ppdb_participant_id")
+  ppdbParticipantId  Int?      @map("ppdb_participant_id") @db.UnsignedInt
   createdBy          String?   @map("created_by") @db.VarChar(50)
 
   user              User?            @relation(fields: [userUserId], references: [userId], onDelete: SetNull, onUpdate: SetNull)
@@ -286,9 +286,9 @@ model Information {
   informationDesc      String?   @map("information_desc") @db.Text
   informationImg       String?   @map("information_img") @db.VarChar(255)
   informationPublish   Boolean   @default(false) @map("information_publish")
-  userUserId           Int?      @map("user_user_id")
-  informationInputDate DateTime? @map("information_input_date") @db.Timestamp
-  informationLastUpdate DateTime? @map("information_last_update") @db.Timestamp
+  userUserId           Int?      @map("user_user_id") @db.UnsignedInt
+  informationInputDate DateTime? @map("information_input_date") @db.Timestamp(0)
+  informationLastUpdate DateTime? @map("information_last_update") @db.Timestamp(0)
 
   user User? @relation(fields: [userUserId], references: [userId], onDelete: SetNull, onUpdate: SetNull)
 
@@ -300,8 +300,8 @@ model LogTrx {
   studentStudentId    Int?      @map("student_student_id")
   bulanBulanId        Int?      @map("bulan_bulan_id")
   bebasPayBebasPayId  Int?      @map("bebas_pay_bebas_pay_id")
-  logTrxInputDate     DateTime? @map("log_trx_input_date") @db.Timestamp
-  logTrxLastUpdate    DateTime? @map("log_trx_last_update") @db.Timestamp
+  logTrxInputDate     DateTime? @map("log_trx_input_date") @db.Timestamp(0)
+  logTrxLastUpdate    DateTime? @map("log_trx_last_update") @db.Timestamp(0)
 
   student Student?  @relation(fields: [studentStudentId], references: [studentId], onDelete: SetNull, onUpdate: SetNull)
   bulan   Bulan?    @relation(fields: [bulanBulanId], references: [bulanId], onDelete: SetNull, onUpdate: SetNull)
@@ -411,8 +411,8 @@ model Jurnal {
   jurnalId   Int       @id @default(autoincrement()) @map("jurnal_id")
   jurnalName String?   @map("jurnal_name") @db.VarChar(100)
   jurnalDesc String?   @map("jurnal_desc") @db.Text
-  createdAt  DateTime? @default(now()) @map("created_at") @db.Timestamp
-  updatedAt  DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamp
+  createdAt  DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt  DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
 
   @@map("jurnal")
 }
