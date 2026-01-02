@@ -83,10 +83,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       user: {
-        userId: user.userId,
-        email: user.userEmail,
-        fullName: user.userFullName,
-        roleId: user.userRoleRoleId,
+        userId: user.user_id,
+        email: user.user_email,
+        fullName: user.user_full_name,
+        roleId: user.user_role_role_id,
       },
       token,
     })

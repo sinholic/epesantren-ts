@@ -2,13 +2,16 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { prisma } from './prisma'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production'
+const JWT_SECRET = process.env.JWT_SECRET as string
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required')
+}
 
 export interface AuthUser {
-  userId: number
-  userEmail: string | null
-  userFullName: string | null
-  userRoleRoleId: number | null
+  user_id: number
+  user_email: string | null
+  user_full_name: string | null
+  user_role_role_id: number | null
 }
 
 export async function hashPassword(password: string): Promise<string> {
@@ -31,20 +34,20 @@ export async function verifyPassword(password: string, hashedPassword: string): 
   return bcrypt.compare(password, hashedPassword)
 }
 
-export async function upgradePassword(userId: number, password: string): Promise<void> {
+export async function upgradePassword(user_id: number, password: string): Promise<void> {
   const hashedPassword = await hashPassword(password)
   await prisma.user.update({
-    where: { userId },
-    data: { userPassword: hashedPassword },
+    where: { user_id },
+    data: { user_password: hashedPassword },
   })
 }
 
 export function generateToken(user: AuthUser): string {
   return jwt.sign(
     {
-      userId: user.userId,
-      email: user.userEmail,
-      roleId: user.userRoleRoleId,
+      userId: user.user_id,
+      email: user.user_email,
+      roleId: user.user_role_role_id,
     },
     JWT_SECRET,
     { expiresIn: '7d' }
@@ -55,10 +58,10 @@ export function verifyToken(token: string): AuthUser | null {
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as any
     return {
-      userId: decoded.userId,
-      userEmail: decoded.email,
-      userFullName: null,
-      userRoleRoleId: decoded.roleId,
+      user_id: decoded.userId,
+      user_email: decoded.email,
+      user_full_name: null,
+      user_role_role_id: decoded.roleId,
     }
   } catch (error) {
     return null
@@ -69,24 +72,24 @@ export async function authenticateUser(email: string, password: string): Promise
   try {
     const user = await prisma.user.findFirst({
       where: {
-        userEmail: email,
-        userIsDeleted: false,
+        user_email: email,
+        user_is_deleted: false,
       },
     })
 
-    if (!user || !user.userPassword) {
+    if (!user || !user.user_password) {
       return null
     }
 
-    const isValid = await verifyPassword(password, user.userPassword)
+    const isValid = await verifyPassword(password, user.user_password)
     if (!isValid) {
       return null
     }
 
     // Upgrade password if it was SHA1
-    if (user.userPassword.length === 40 && /^[a-f0-9]{40}$/i.test(user.userPassword)) {
+    if (user.user_password.length === 40 && /^[a-f0-9]{40}$/i.test(user.user_password)) {
       try {
-        await upgradePassword(user.userId, password)
+        await upgradePassword(user.user_id, password)
       } catch (error) {
         // Log error but don't fail authentication if password upgrade fails
         console.error('Failed to upgrade password:', error)
@@ -94,10 +97,10 @@ export async function authenticateUser(email: string, password: string): Promise
     }
 
     return {
-      userId: user.userId,
-      userEmail: user.userEmail,
-      userFullName: user.userFullName,
-      userRoleRoleId: user.userRoleRoleId,
+      user_id: user.user_id,
+      user_email: user.user_email,
+      user_full_name: user.user_full_name,
+      user_role_role_id: user.user_role_role_id,
     }
   } catch (error) {
     console.error('Database error in authenticateUser:', error)

@@ -13,17 +13,17 @@ export async function GET(request: NextRequest) {
     }
 
     const user = await prisma.user.findUnique({
-      where: { userId: authResult.user.userId },
+      where: { user_id: authResult.user.user_id },
       select: {
-        userId: true,
-        userEmail: true,
-        userFullName: true,
-        userImage: true,
-        userRoleRoleId: true,
+        user_id: true,
+        user_email: true,
+        user_full_name: true,
+        user_image: true,
+        user_role_role_id: true,
         role: {
           select: {
-            roleId: true,
-            roleName: true,
+            role_id: true,
+            role_name: true,
           },
         },
       },
@@ -38,12 +38,12 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       user: {
-        userId: user.userId,
-        email: user.userEmail,
-        fullName: user.userFullName,
-        image: user.userImage,
-        roleId: user.userRoleRoleId,
-        roleName: user.role?.roleName,
+        userId: user.user_id,
+        email: user.user_email,
+        fullName: user.user_full_name,
+        image: user.user_image,
+        roleId: user.user_role_role_id,
+        roleName: user.role?.role_name,
       },
     })
   } catch (error) {

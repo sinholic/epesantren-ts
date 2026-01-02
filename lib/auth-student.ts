@@ -2,12 +2,15 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { prisma } from './prisma'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production'
+const JWT_SECRET = process.env.JWT_SECRET as string
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required')
+}
 
 export interface StudentAuth {
-  studentId: number
-  studentNis: string | null
-  studentFullName: string | null
+  student_id: number
+  student_nis: string | null
+  student_full_name: string | null
 }
 
 export async function verifyStudentPassword(password: string, hashedPassword: string): Promise<boolean> {
@@ -24,19 +27,19 @@ export async function hashStudentPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 10)
 }
 
-export async function upgradeStudentPassword(studentId: number, password: string): Promise<void> {
+export async function upgradeStudentPassword(student_id: number, password: string): Promise<void> {
   const hashedPassword = await hashStudentPassword(password)
   await prisma.student.update({
-    where: { studentId },
-    data: { studentPassword: hashedPassword },
+    where: { student_id },
+    data: { student_password: hashedPassword },
   })
 }
 
 export function generateStudentToken(student: StudentAuth): string {
   return jwt.sign(
     {
-      studentId: student.studentId,
-      nis: student.studentNis,
+      studentId: student.student_id,
+      nis: student.student_nis,
       type: 'student',
     },
     JWT_SECRET,
@@ -49,9 +52,9 @@ export function verifyStudentToken(token: string): StudentAuth | null {
     const decoded = jwt.verify(token, JWT_SECRET) as any
     if (decoded.type !== 'student') return null
     return {
-      studentId: decoded.studentId,
-      studentNis: decoded.nis,
-      studentFullName: null,
+      student_id: decoded.studentId,
+      student_nis: decoded.nis,
+      student_full_name: null,
     }
   } catch (error) {
     return null
@@ -62,24 +65,24 @@ export async function authenticateStudent(nis: string, password: string): Promis
   try {
     const student = await prisma.student.findFirst({
       where: {
-        studentNis: nis,
-        studentStatus: true,
+        student_nis: nis,
+        student_status: true,
       },
     })
 
-    if (!student || !student.studentPassword) {
+    if (!student || !student.student_password) {
       return null
     }
 
-    const isValid = await verifyStudentPassword(password, student.studentPassword)
+    const isValid = await verifyStudentPassword(password, student.student_password)
     if (!isValid) {
       return null
     }
 
     // Upgrade password if it was SHA1
-    if (student.studentPassword.length === 40 && /^[a-f0-9]{40}$/i.test(student.studentPassword)) {
+    if (student.student_password.length === 40 && /^[a-f0-9]{40}$/i.test(student.student_password)) {
       try {
-        await upgradeStudentPassword(student.studentId, password)
+        await upgradeStudentPassword(student.student_id, password)
       } catch (error) {
         // Log error but don't fail authentication if password upgrade fails
         console.error('Failed to upgrade student password:', error)
@@ -87,9 +90,9 @@ export async function authenticateStudent(nis: string, password: string): Promis
     }
 
     return {
-      studentId: student.studentId,
-      studentNis: student.studentNis,
-      studentFullName: student.studentFullName,
+      student_id: student.student_id,
+      student_nis: student.student_nis,
+      student_full_name: student.student_full_name,
     }
   } catch (error) {
     console.error('Database error in authenticateStudent:', error)
