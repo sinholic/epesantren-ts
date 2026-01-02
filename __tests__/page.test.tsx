@@ -10,8 +10,21 @@ vi.mock('next/navigation', () => ({
     }),
 }))
 
-// Mock fetch
-global.fetch = vi.fn()
+import { expect, test, vi, beforeEach, afterEach } from 'vitest'
+
+// ... other test code ...
+
+// Mock fetch will be setup in beforeEach
+let originalFetch: typeof global.fetch
+
+beforeEach(() => {
+    originalFetch = global.fetch
+    global.fetch = vi.fn()
+})
+
+afterEach(() => {
+    global.fetch = originalFetch
+})
 
 test('Page renders correctly', async () => {
     // Mock fetch response for auth check (unauthorized -> show login)
