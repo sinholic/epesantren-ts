@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { authenticateUser, generateToken } from '@/lib/auth'
 import { cookies } from 'next/headers'
+import { UserRoleType } from '@prisma/client'
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,11 +26,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { email, password } = body
+    const { username, password } = body
 
-    if (!email || !password) {
+    if (!username || !password) {
       return NextResponse.json(
-        { error: 'Email and password are required' },
+        { error: 'Username and password are required' },
         { status: 400 }
       )
     }
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
     // Authenticate user
     let user
     try {
-      user = await authenticateUser(email, password)
+      user = await authenticateUser(username, password)
     } catch (error) {
       console.error('Authentication error:', error)
       return NextResponse.json(
@@ -80,24 +81,37 @@ export async function POST(request: NextRequest) {
       // Continue even if cookie setting fails, token is still returned in response
     }
 
+    // Determine redirect path based on role type
+    let redirectPath = '/'
+    if (user.user_role_type === UserRoleType.ADMIN) {
+      redirectPath = '/manage/dashboard'
+    } else if (user.user_role_type === UserRoleType.STUDENT) {
+      redirectPath = '/student/dashboard'
+    } else if (user.user_role_type === UserRoleType.TEACHER) {
+      redirectPath = '/teacher/dashboard'
+    }
+
     return NextResponse.json({
       success: true,
       user: {
         userId: user.user_id,
+        username: user.username,
         email: user.user_email,
         fullName: user.user_full_name,
         roleId: user.user_role_role_id,
+        roleType: user.user_role_type,
       },
+      redirectPath,
       token,
     })
   } catch (error) {
     console.error('Login error:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     const errorStack = error instanceof Error ? error.stack : undefined
-    
+
     // Don't expose stack trace in production
     return NextResponse.json(
-      { 
+      {
         error: 'Internal server error',
         details: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
         stack: process.env.NODE_ENV === 'development' ? errorStack : undefined
