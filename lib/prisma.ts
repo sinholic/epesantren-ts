@@ -10,9 +10,10 @@ if (!process.env.DATABASE_URL) {
 }
 
 // Create Prisma Client for MariaDB
-// MariaDB is compatible with MySQL protocol, so we can use Prisma's native MySQL support
-// No adapter needed - Prisma 6.0.0 supports MySQL/MariaDB natively via connection string
-// The connection string format is: mysql://user:password@host:port/database
+// Note: Prisma 6.0.0 supports MySQL/MariaDB natively via connection string
+// The MariaDB adapter (@prisma/adapter-mariadb) may have compatibility issues with Prisma 6.0.0
+// Using native MySQL support works reliably with MariaDB as they share the same protocol
+// Connection string format: mysql://user:password@host:port/database
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
