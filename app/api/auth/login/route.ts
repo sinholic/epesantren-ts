@@ -25,11 +25,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { email, password } = body
+    const { username, password } = body
 
-    if (!email || !password) {
+    if (!username || !password) {
       return NextResponse.json(
-        { error: 'Email and password are required' },
+        { error: 'Username and password are required' },
         { status: 400 }
       )
     }
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     // Authenticate user
     let user
     try {
-      user = await authenticateUser(email, password)
+      user = await authenticateUser(username, password)
     } catch (error) {
       console.error('Authentication error:', error)
       return NextResponse.json(
@@ -80,14 +80,27 @@ export async function POST(request: NextRequest) {
       // Continue even if cookie setting fails, token is still returned in response
     }
 
+    // Determine redirect path based on role type
+    let redirectPath = '/'
+    if (user.user_role_type === 'ADMIN') {
+      redirectPath = '/manage/dashboard'
+    } else if (user.user_role_type === 'STUDENT') {
+      redirectPath = '/student/dashboard'
+    } else if (user.user_role_type === 'TEACHER') {
+      redirectPath = '/teacher/dashboard'
+    }
+
     return NextResponse.json({
       success: true,
       user: {
         userId: user.user_id,
+        username: user.username,
         email: user.user_email,
         fullName: user.user_full_name,
         roleId: user.user_role_role_id,
+        roleType: user.user_role_type,
       },
+      redirectPath,
       token,
     })
   } catch (error) {

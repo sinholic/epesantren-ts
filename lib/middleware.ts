@@ -4,9 +4,11 @@ import { verifyToken } from './auth'
 export interface AuthenticatedRequest extends NextRequest {
   user?: {
     user_id: number
+    username: string | null
     user_email: string | null
     user_full_name: string | null
     user_role_role_id: number | null
+    user_role_type: string | null
   }
 }
 
@@ -26,9 +28,11 @@ export async function requireAuth(request: NextRequest): Promise<{
   success: boolean
   user?: {
     user_id: number
+    username: string | null
     user_email: string | null
     user_full_name: string | null
     user_role_role_id: number | null
+    user_role_type: string | null
   }
 }> {
   const token = getAuthToken(request)

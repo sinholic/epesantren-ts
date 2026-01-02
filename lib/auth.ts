@@ -9,9 +9,11 @@ if (!JWT_SECRET) {
 
 export interface AuthUser {
   user_id: number
+  username: string | null
   user_email: string | null
   user_full_name: string | null
   user_role_role_id: number | null
+  user_role_type: string | null
 }
 
 export async function hashPassword(password: string): Promise<string> {
@@ -46,8 +48,10 @@ export function generateToken(user: AuthUser): string {
   return jwt.sign(
     {
       userId: user.user_id,
+      username: user.username,
       email: user.user_email,
       roleId: user.user_role_role_id,
+      roleType: user.user_role_type,
     },
     JWT_SECRET,
     { expiresIn: '7d' }
@@ -59,21 +63,26 @@ export function verifyToken(token: string): AuthUser | null {
     const decoded = jwt.verify(token, JWT_SECRET) as any
     return {
       user_id: decoded.userId,
+      username: decoded.username,
       user_email: decoded.email,
       user_full_name: null,
       user_role_role_id: decoded.roleId,
+      user_role_type: decoded.roleType,
     }
   } catch (error) {
     return null
   }
 }
 
-export async function authenticateUser(email: string, password: string): Promise<AuthUser | null> {
+export async function authenticateUser(username: string, password: string): Promise<AuthUser | null> {
   try {
     const user = await prisma.user.findFirst({
       where: {
-        user_email: email,
+        username: username,
         user_is_deleted: false,
+      },
+      include: {
+        role: true,
       },
     })
 
@@ -98,9 +107,11 @@ export async function authenticateUser(email: string, password: string): Promise
 
     return {
       user_id: user.user_id,
+      username: user.username,
       user_email: user.user_email,
       user_full_name: user.user_full_name,
       user_role_role_id: user.user_role_role_id,
+      user_role_type: user.user_role_type,
     }
   } catch (error) {
     console.error('Database error in authenticateUser:', error)

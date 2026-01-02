@@ -17,6 +17,13 @@ enum Gender {
   P // Perempuan
 }
 
+enum UserRoleType {
+  ADMIN
+  STUDENT
+  TEACHER
+  PPDB
+}
+
 enum PaymentType {
   BULAN
   BEBAS
@@ -73,12 +80,14 @@ model UserRole {
 
 model User {
   user_id          Int       @id @default(autoincrement())
+  username         String?   @unique @db.VarChar(100)
   user_email       String?   @db.VarChar(45)
   user_password    String?   @db.VarChar(100)
   user_full_name   String?   @db.VarChar(255)
   user_image       String?   @db.VarChar(255)
   user_description String?   @db.Text
   user_role_role_id Int?
+  user_role_type   UserRoleType?
   user_is_deleted  Boolean   @default(false)
   user_input_date  DateTime? @db.Timestamp
   user_last_update DateTime? @default(now()) @updatedAt @db.Timestamp

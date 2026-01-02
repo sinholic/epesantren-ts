@@ -16,10 +16,12 @@ export async function GET(request: NextRequest) {
       where: { user_id: authResult.user.user_id },
       select: {
         user_id: true,
+        username: true,
         user_email: true,
         user_full_name: true,
         user_image: true,
         user_role_role_id: true,
+        user_role_type: true,
         role: {
           select: {
             role_id: true,
@@ -39,10 +41,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       user: {
         userId: user.user_id,
+        username: user.username,
         email: user.user_email,
         fullName: user.user_full_name,
         image: user.user_image,
         roleId: user.user_role_role_id,
+        roleType: user.user_role_type,
         roleName: user.role?.role_name,
       },
     })
