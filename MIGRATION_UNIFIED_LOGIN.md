@@ -48,6 +48,18 @@ AND NOT EXISTS (
 -- Teacher: perlu mapping dari table teacher ke users (jika ada)
 -- Buat user di table users untuk setiap teacher yang belum ada
 -- Sesuaikan dengan struktur table teacher yang ada
+INSERT INTO users (username, user_password, user_full_name, user_role_type, user_role_role_id)
+SELECT 
+  teacher_nip as username,  -- Adjust column name based on your schema
+  teacher_password,          -- Adjust column name based on your schema
+  teacher_full_name,         -- Adjust column name based on your schema
+  'TEACHER'::user_role_type,
+  (SELECT role_id FROM user_roles WHERE role_name = 'teacher' LIMIT 1)
+FROM teacher
+WHERE teacher_nip IS NOT NULL
+AND NOT EXISTS (
+  SELECT 1 FROM users WHERE username = teacher.teacher_nip
+);
 ```
 
 ## Cara Kerja
