@@ -44,3 +44,6 @@ prisma/migrations/
 # application/
 # system/
 # index.php
+
+# Seed
+prisma/seed.ts
