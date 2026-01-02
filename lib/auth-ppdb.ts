@@ -62,32 +62,42 @@ export function verifyPPDBToken(token: string): PPDBAuth | null {
 }
 
 export async function authenticatePPDB(nisn: string, password: string): Promise<PPDBAuth | null> {
-  // Note: Using raw query since ppdb_participant might not be in Prisma schema yet
-  const participants = await prisma.$queryRaw<any[]>`
-    SELECT * FROM ppdb_participant 
-    WHERE nisn = ${nisn} 
-    AND status = 1
-    LIMIT 1
-  `
+  try {
+    // Note: Using raw query since ppdb_participant might not be in Prisma schema yet
+    const participants = await prisma.$queryRaw<any[]>`
+      SELECT * FROM ppdb_participant 
+      WHERE nisn = ${nisn} 
+      AND status = 1
+      LIMIT 1
+    `
 
-  if (!participants || participants.length === 0 || !participants[0].password) {
-    return null
-  }
+    if (!participants || participants.length === 0 || !participants[0].password) {
+      return null
+    }
 
-  const participant = participants[0]
-  const isValid = await verifyPPDBPassword(password, participant.password)
-  if (!isValid) {
-    return null
-  }
+    const participant = participants[0]
+    const isValid = await verifyPPDBPassword(password, participant.password)
+    if (!isValid) {
+      return null
+    }
 
-  // Upgrade password if it was SHA1
-  if (participant.password.length === 40 && /^[a-f0-9]{40}$/i.test(participant.password)) {
-    await upgradePPDBPassword(participant.id, password)
-  }
+    // Upgrade password if it was SHA1
+    if (participant.password.length === 40 && /^[a-f0-9]{40}$/i.test(participant.password)) {
+      try {
+        await upgradePPDBPassword(participant.id, password)
+      } catch (error) {
+        // Log error but don't fail authentication if password upgrade fails
+        console.error('Failed to upgrade PPDB password:', error)
+      }
+    }
 
-  return {
-    participantId: participant.id,
-    nisn: participant.nisn,
-    namaPeserta: participant.nama_peserta,
+    return {
+      participantId: participant.id,
+      nisn: participant.nisn,
+      namaPeserta: participant.nama_peserta,
+    }
+  } catch (error) {
+    console.error('Database error in authenticatePPDB:', error)
+    throw new Error(`Database connection error: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }

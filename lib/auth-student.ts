@@ -59,30 +59,40 @@ export function verifyStudentToken(token: string): StudentAuth | null {
 }
 
 export async function authenticateStudent(nis: string, password: string): Promise<StudentAuth | null> {
-  const student = await prisma.student.findFirst({
-    where: {
-      studentNis: nis,
-      studentStatus: true,
-    },
-  })
+  try {
+    const student = await prisma.student.findFirst({
+      where: {
+        studentNis: nis,
+        studentStatus: true,
+      },
+    })
 
-  if (!student || !student.studentPassword) {
-    return null
-  }
+    if (!student || !student.studentPassword) {
+      return null
+    }
 
-  const isValid = await verifyStudentPassword(password, student.studentPassword)
-  if (!isValid) {
-    return null
-  }
+    const isValid = await verifyStudentPassword(password, student.studentPassword)
+    if (!isValid) {
+      return null
+    }
 
-  // Upgrade password if it was SHA1
-  if (student.studentPassword.length === 40 && /^[a-f0-9]{40}$/i.test(student.studentPassword)) {
-    await upgradeStudentPassword(student.studentId, password)
-  }
+    // Upgrade password if it was SHA1
+    if (student.studentPassword.length === 40 && /^[a-f0-9]{40}$/i.test(student.studentPassword)) {
+      try {
+        await upgradeStudentPassword(student.studentId, password)
+      } catch (error) {
+        // Log error but don't fail authentication if password upgrade fails
+        console.error('Failed to upgrade student password:', error)
+      }
+    }
 
-  return {
-    studentId: student.studentId,
-    studentNis: student.studentNis,
-    studentFullName: student.studentFullName,
+    return {
+      studentId: student.studentId,
+      studentNis: student.studentNis,
+      studentFullName: student.studentFullName,
+    }
+  } catch (error) {
+    console.error('Database error in authenticateStudent:', error)
+    throw new Error(`Database connection error: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }
