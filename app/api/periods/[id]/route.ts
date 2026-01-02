@@ -17,7 +17,7 @@ export async function GET(
 
     const { id } = await params
     const period = await prisma.period.findUnique({
-      where: { periodId: parseInt(id) },
+      where: { period_id: parseInt(id) },
     })
 
     if (!period) {
@@ -52,27 +52,27 @@ export async function PUT(
 
     const { id } = await params
     const body = await request.json()
-    const { periodStart, periodEnd, periodStatus } = body
+    const { period_start, period_end, period_status } = body
 
     const updateData: any = {}
-    if (periodStart !== undefined) updateData.periodStart = parseInt(periodStart)
-    if (periodEnd !== undefined) updateData.periodEnd = parseInt(periodEnd)
-    if (periodStatus !== undefined) {
+    if (period_start !== undefined) updateData.period_start = parseInt(period_start)
+    if (period_end !== undefined) updateData.period_end = parseInt(period_end)
+    if (period_status !== undefined) {
       // If setting as active, deactivate all other periods
-      if (periodStatus === true) {
+      if (period_status === true) {
         await prisma.period.updateMany({
           where: {
-            periodStatus: true,
-            periodId: { not: parseInt(id) },
+            period_status: true,
+            period_id: { not: parseInt(id) },
           },
-          data: { periodStatus: false },
+          data: { period_status: false },
         })
       }
-      updateData.periodStatus = periodStatus
+      updateData.period_status = period_status
     }
 
     const period = await prisma.period.update({
-      where: { periodId: parseInt(id) },
+      where: { period_id: parseInt(id) },
       data: updateData,
     })
 
@@ -102,7 +102,7 @@ export async function DELETE(
     const { id } = await params
     // Check if period has payments
     const payments = await prisma.payment.count({
-      where: { periodPeriodId: parseInt(id) },
+      where: { period_period_id: parseInt(id) },
     })
 
     if (payments > 0) {
@@ -113,7 +113,7 @@ export async function DELETE(
     }
 
     await prisma.period.delete({
-      where: { periodId: parseInt(id) },
+      where: { period_id: parseInt(id) },
     })
 
     return NextResponse.json({ success: true })

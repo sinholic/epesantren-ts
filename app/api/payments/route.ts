@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     const where: any = {}
     if (studentId) {
       where.OR = [
-        { studentStudentId: parseInt(studentId) },
+        { student_student_id: parseInt(studentId) },
       ]
     }
 
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit,
         orderBy: {
-          paymentId: 'desc',
+          payment_id: 'desc',
         },
         include: {
           period: true,
@@ -82,16 +82,16 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     const {
-      paymentType,
-      periodPeriodId,
-      posPosId,
+      payment_type,
+      period_period_id,
+      pos_pos_id,
     } = body
 
     const payment = await prisma.payment.create({
       data: {
-        paymentType,
-        periodPeriodId,
-        posPosId,
+        payment_type,
+        period_period_id,
+        pos_pos_id,
       },
     })
 

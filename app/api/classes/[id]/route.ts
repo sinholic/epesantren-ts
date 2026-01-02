@@ -17,7 +17,7 @@ export async function GET(
 
     const { id } = await params
     const classData = await prisma.class.findUnique({
-      where: { classId: parseInt(id) },
+      where: { class_id: parseInt(id) },
     })
 
     if (!classData) {
@@ -52,9 +52,9 @@ export async function PUT(
 
     const { id } = await params
     const body = await request.json()
-    const { className } = body
+    const { class_name } = body
 
-    if (!className) {
+    if (!class_name) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -62,8 +62,8 @@ export async function PUT(
     }
 
     const classData = await prisma.class.update({
-      where: { classId: parseInt(id) },
-      data: { className },
+      where: { class_id: parseInt(id) },
+      data: { class_name },
     })
 
     return NextResponse.json({ class: classData })
@@ -92,7 +92,7 @@ export async function DELETE(
     const { id } = await params
     // Check if class has students
     const students = await prisma.student.count({
-      where: { classClassId: parseInt(id) },
+      where: { class_class_id: parseInt(id) },
     })
 
     if (students > 0) {
@@ -103,7 +103,7 @@ export async function DELETE(
     }
 
     await prisma.class.delete({
-      where: { classId: parseInt(id) },
+      where: { class_id: parseInt(id) },
     })
 
     return NextResponse.json({ success: true })

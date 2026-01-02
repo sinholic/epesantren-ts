@@ -83,9 +83,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       participant: {
-        participantId: participant.participantId,
+        participantId: participant.participant_id,
         nisn: participant.nisn,
-        namaPeserta: participant.namaPeserta,
+        namaPeserta: participant.nama_peserta,
       },
       token,
     })

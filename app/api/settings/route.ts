@@ -17,13 +17,13 @@ export async function GET(request: NextRequest) {
 
     const where: any = {}
     if (name) {
-      where.settingName = name
+      where.setting_name = name
     }
 
     const settings = await prisma.setting.findMany({
       where,
       orderBy: {
-        settingId: 'asc',
+        setting_id: 'asc',
       },
     })
 
@@ -53,9 +53,9 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { settingName, settingValue } = body
+    const { setting_name, setting_value } = body
 
-    if (!settingName) {
+    if (!setting_name) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -64,26 +64,26 @@ export async function POST(request: NextRequest) {
 
     // Check if setting already exists
     const existing = await prisma.setting.findFirst({
-      where: { settingName },
+      where: { setting_name },
     })
 
     let setting
     if (existing) {
       // Update existing
       setting = await prisma.setting.update({
-        where: { settingId: existing.settingId },
+        where: { setting_id: existing.setting_id },
         data: {
-          settingValue,
-          settingLastUpdate: new Date(),
+          setting_value,
+          setting_last_update: new Date(),
         },
       })
     } else {
       // Create new
       setting = await prisma.setting.create({
         data: {
-          settingName,
-          settingValue,
-          settingLastUpdate: new Date(),
+          setting_name,
+          setting_value,
+          setting_last_update: new Date(),
         },
       })
     }

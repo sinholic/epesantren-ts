@@ -83,9 +83,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       student: {
-        studentId: student.studentId,
-        nis: student.studentNis,
-        fullName: student.studentFullName,
+        studentId: student.student_id,
+        nis: student.student_nis,
+        fullName: student.student_full_name,
       },
       token,
     })

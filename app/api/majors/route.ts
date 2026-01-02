@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 
     const majors = await prisma.major.findMany({
       orderBy: {
-        majorsName: 'asc',
+        majors_name: 'asc',
       },
     })
 
@@ -39,9 +39,9 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { majorsName, majorsShortName } = body
+    const { majors_name, majors_short_name } = body
 
-    if (!majorsName || !majorsShortName) {
+    if (!majors_name || !majors_short_name) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -50,8 +50,8 @@ export async function POST(request: NextRequest) {
 
     const major = await prisma.major.create({
       data: {
-        majorsName,
-        majorsShortName,
+        majors_name,
+        majors_short_name,
       },
     })
 

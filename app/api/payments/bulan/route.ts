@@ -18,10 +18,10 @@ export async function GET(request: NextRequest) {
 
     const where: any = {}
     if (studentId) {
-      where.studentStudentId = parseInt(studentId)
+      where.student_student_id = parseInt(studentId)
     }
     if (paymentId) {
-      where.paymentPaymentId = parseInt(paymentId)
+      where.payment_payment_id = parseInt(paymentId)
     }
 
     const bulanPayments = await prisma.bulan.findMany({
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
         user: true,
       },
       orderBy: {
-        bulanId: 'desc',
+        bulan_id: 'desc',
       },
     })
 
@@ -59,26 +59,26 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     const {
-      studentStudentId,
-      paymentPaymentId,
-      monthMonthId,
-      bulanBill,
-      bulanStatus,
-      bulanNumberPay,
-      bulanDatePay,
-      userUserId,
+      student_student_id,
+      payment_payment_id,
+      month_month_id,
+      bulan_bill,
+      bulan_status,
+      bulan_number_pay,
+      bulan_date_pay,
+      user_user_id,
     } = body
 
     const bulan = await prisma.bulan.create({
       data: {
-        studentStudentId,
-        paymentPaymentId,
-        monthMonthId,
-        bulanBill: bulanBill ? parseFloat(bulanBill) : null,
-        bulanStatus: bulanStatus || false,
-        bulanNumberPay,
-        bulanDatePay: bulanDatePay ? new Date(bulanDatePay) : null,
-        userUserId,
+        student_student_id,
+        payment_payment_id,
+        month_month_id,
+        bulan_bill: bulan_bill ? parseFloat(bulan_bill) : null,
+        bulan_status: bulan_status || false,
+        bulan_number_pay,
+        bulan_date_pay: bulan_date_pay ? new Date(bulan_date_pay) : null,
+        user_user_id,
       },
     })
 

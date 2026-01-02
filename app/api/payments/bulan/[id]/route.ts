@@ -17,7 +17,7 @@ export async function GET(
 
     const { id } = await params
     const bulan = await prisma.bulan.findUnique({
-      where: { bulanId: parseInt(id) },
+      where: { bulan_id: parseInt(id) },
       include: {
         student: true,
         payment: true,
@@ -59,30 +59,30 @@ export async function PUT(
     const { id } = await params
     const body = await request.json()
     const {
-      studentStudentId,
-      paymentPaymentId,
-      monthMonthId,
-      bulanBill,
-      bulanStatus,
-      bulanNumberPay,
-      bulanDatePay,
-      userUserId,
+      student_student_id,
+      payment_payment_id,
+      month_month_id,
+      bulan_bill,
+      bulan_status,
+      bulan_number_pay,
+      bulan_date_pay,
+      user_user_id,
     } = body
 
     const updateData: any = {}
-    if (studentStudentId !== undefined) updateData.studentStudentId = studentStudentId
-    if (paymentPaymentId !== undefined) updateData.paymentPaymentId = paymentPaymentId
-    if (monthMonthId !== undefined) updateData.monthMonthId = monthMonthId
-    if (bulanBill !== undefined) updateData.bulanBill = parseFloat(bulanBill)
-    if (bulanStatus !== undefined) updateData.bulanStatus = bulanStatus
-    if (bulanNumberPay !== undefined) updateData.bulanNumberPay = bulanNumberPay
-    if (bulanDatePay !== undefined) updateData.bulanDatePay = new Date(bulanDatePay)
-    if (userUserId !== undefined) updateData.userUserId = userUserId
+    if (student_student_id !== undefined) updateData.student_student_id = student_student_id
+    if (payment_payment_id !== undefined) updateData.payment_payment_id = payment_payment_id
+    if (month_month_id !== undefined) updateData.month_month_id = month_month_id
+    if (bulan_bill !== undefined) updateData.bulan_bill = parseFloat(bulan_bill)
+    if (bulan_status !== undefined) updateData.bulan_status = bulan_status
+    if (bulan_number_pay !== undefined) updateData.bulan_number_pay = bulan_number_pay
+    if (bulan_date_pay !== undefined) updateData.bulan_date_pay = new Date(bulan_date_pay)
+    if (user_user_id !== undefined) updateData.user_user_id = user_user_id
 
-    updateData.bulanLastUpdate = new Date()
+    updateData.bulan_last_update = new Date()
 
     const bulan = await prisma.bulan.update({
-      where: { bulanId: parseInt(id) },
+      where: { bulan_id: parseInt(id) },
       data: updateData,
       include: {
         student: true,
@@ -117,7 +117,7 @@ export async function DELETE(
 
     const { id } = await params
     await prisma.bulan.delete({
-      where: { bulanId: parseInt(id) },
+      where: { bulan_id: parseInt(id) },
     })
 
     return NextResponse.json({ success: true })

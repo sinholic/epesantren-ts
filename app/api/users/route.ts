@@ -20,13 +20,13 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search')
 
     const where: any = {
-      userIsDeleted: false,
+      user_is_deleted: false,
     }
 
     if (search) {
       where.OR = [
-        { userFullName: { contains: search } },
-        { userEmail: { contains: search } },
+        { user_full_name: { contains: search } },
+        { user_email: { contains: search } },
       ]
     }
 
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit,
         orderBy: {
-          userId: 'desc',
+          user_id: 'desc',
         },
         include: {
           role: true,
@@ -75,15 +75,15 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     const {
-      userEmail,
-      userPassword,
-      userFullName,
-      userDescription,
-      userRoleRoleId,
+      user_email,
+      user_password,
+      user_full_name,
+      user_description,
+      user_role_role_id,
     } = body
 
     // Validate required fields
-    if (!userEmail || !userPassword || !userFullName || !userRoleRoleId) {
+    if (!user_email || !user_password || !user_full_name || !user_role_role_id) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -93,8 +93,8 @@ export async function POST(request: NextRequest) {
     // Check if email already exists
     const existingUser = await prisma.user.findFirst({
       where: {
-        userEmail,
-        userIsDeleted: false,
+        user_email,
+        user_is_deleted: false,
       },
     })
 
@@ -106,16 +106,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(userPassword, 10)
+    const hashedPassword = await bcrypt.hash(user_password, 10)
 
     const user = await prisma.user.create({
       data: {
-        userEmail,
-        userPassword: hashedPassword,
-        userFullName,
-        userDescription,
-        userRoleRoleId,
-        userInputDate: new Date(),
+        user_email,
+        user_password: hashedPassword,
+        user_full_name,
+        user_description,
+        user_role_role_id,
+        user_input_date: new Date(),
       },
       include: {
         role: true,

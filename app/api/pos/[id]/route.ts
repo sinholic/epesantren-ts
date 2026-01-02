@@ -17,7 +17,7 @@ export async function GET(
 
     const { id } = await params
     const pos = await prisma.pos.findUnique({
-      where: { posId: parseInt(id) },
+      where: { pos_id: parseInt(id) },
     })
 
     if (!pos) {
@@ -52,14 +52,14 @@ export async function PUT(
 
     const { id } = await params
     const body = await request.json()
-    const { posName, posDescription } = body
+    const { pos_name, pos_description } = body
 
     const updateData: any = {}
-    if (posName !== undefined) updateData.posName = posName
-    if (posDescription !== undefined) updateData.posDescription = posDescription
+    if (pos_name !== undefined) updateData.pos_name = pos_name
+    if (pos_description !== undefined) updateData.pos_description = pos_description
 
     const pos = await prisma.pos.update({
-      where: { posId: parseInt(id) },
+      where: { pos_id: parseInt(id) },
       data: updateData,
     })
 
@@ -89,7 +89,7 @@ export async function DELETE(
     const { id } = await params
     // Check if POS has payments
     const payments = await prisma.payment.count({
-      where: { posPosId: parseInt(id) },
+      where: { pos_pos_id: parseInt(id) },
     })
 
     if (payments > 0) {
@@ -100,7 +100,7 @@ export async function DELETE(
     }
 
     await prisma.pos.delete({
-      where: { posId: parseInt(id) },
+      where: { pos_id: parseInt(id) },
     })
 
     return NextResponse.json({ success: true })

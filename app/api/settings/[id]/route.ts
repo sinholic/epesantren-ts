@@ -17,7 +17,7 @@ export async function GET(
 
     const { id } = await params
     const setting = await prisma.setting.findUnique({
-      where: { settingId: parseInt(id) },
+      where: { setting_id: parseInt(id) },
     })
 
     if (!setting) {
@@ -52,15 +52,15 @@ export async function PUT(
 
     const { id } = await params
     const body = await request.json()
-    const { settingName, settingValue } = body
+    const { setting_name, setting_value } = body
 
     const updateData: any = {}
-    if (settingName !== undefined) updateData.settingName = settingName
-    if (settingValue !== undefined) updateData.settingValue = settingValue
-    updateData.settingLastUpdate = new Date()
+    if (setting_name !== undefined) updateData.setting_name = setting_name
+    if (setting_value !== undefined) updateData.setting_value = setting_value
+    updateData.setting_last_update = new Date()
 
     const setting = await prisma.setting.update({
-      where: { settingId: parseInt(id) },
+      where: { setting_id: parseInt(id) },
       data: updateData,
     })
 
@@ -89,7 +89,7 @@ export async function DELETE(
 
     const { id } = await params
     await prisma.setting.delete({
-      where: { settingId: parseInt(id) },
+      where: { setting_id: parseInt(id) },
     })
 
     return NextResponse.json({ success: true })

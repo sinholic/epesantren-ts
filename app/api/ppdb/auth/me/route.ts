@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
     // Get full participant data from database
     const participants = await prisma.$queryRaw<any[]>`
       SELECT * FROM ppdb_participant 
-      WHERE id = ${participant.participantId}
+      WHERE id = ${participant.participant_id}
       LIMIT 1
     `
 

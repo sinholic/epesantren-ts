@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
 
     const classes = await prisma.class.findMany({
       orderBy: {
-        className: 'asc',
+        class_name: 'asc',
       },
     })
 
@@ -39,9 +39,9 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { className } = body
+    const { class_name } = body
 
-    if (!className) {
+    if (!class_name) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
 
     const classData = await prisma.class.create({
       data: {
-        className,
+        class_name,
       },
     })
 

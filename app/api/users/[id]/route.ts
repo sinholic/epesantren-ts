@@ -18,13 +18,13 @@ export async function GET(
 
     const { id } = await params
     const user = await prisma.user.findUnique({
-      where: { userId: parseInt(id) },
+      where: { user_id: parseInt(id) },
       include: {
         role: true,
       },
     })
 
-    if (!user || user.userIsDeleted) {
+    if (!user || user.user_is_deleted) {
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
@@ -57,24 +57,24 @@ export async function PUT(
     const { id } = await params
     const body = await request.json()
     const {
-      userEmail,
-      userPassword,
-      userFullName,
-      userDescription,
-      userRoleRoleId,
+      user_email,
+      user_password,
+      user_full_name,
+      user_description,
+      user_role_role_id,
     } = body
 
     const updateData: any = {}
-    if (userFullName !== undefined) updateData.userFullName = userFullName
-    if (userDescription !== undefined) updateData.userDescription = userDescription
-    if (userRoleRoleId !== undefined) updateData.userRoleRoleId = userRoleRoleId
-    if (userEmail !== undefined) {
+    if (user_full_name !== undefined) updateData.user_full_name = user_full_name
+    if (user_description !== undefined) updateData.user_description = user_description
+    if (user_role_role_id !== undefined) updateData.user_role_role_id = user_role_role_id
+    if (user_email !== undefined) {
       // Check if email already exists (excluding current user)
       const existingUser = await prisma.user.findFirst({
         where: {
-          userEmail,
-          userIsDeleted: false,
-          userId: { not: parseInt(id) },
+          user_email,
+          user_is_deleted: false,
+          user_id: { not: parseInt(id) },
         },
       })
 
@@ -84,16 +84,16 @@ export async function PUT(
           { status: 400 }
         )
       }
-      updateData.userEmail = userEmail
+      updateData.user_email = user_email
     }
-    if (userPassword !== undefined && userPassword !== '') {
-      updateData.userPassword = await bcrypt.hash(userPassword, 10)
+    if (user_password !== undefined && user_password !== '') {
+      updateData.user_password = await bcrypt.hash(user_password, 10)
     }
 
-    updateData.userLastUpdate = new Date()
+    updateData.user_last_update = new Date()
 
     const user = await prisma.user.update({
-      where: { userId: parseInt(id) },
+      where: { user_id: parseInt(id) },
       data: updateData,
       include: {
         role: true,
@@ -125,8 +125,8 @@ export async function DELETE(
 
     const { id } = await params
     await prisma.user.update({
-      where: { userId: parseInt(id) },
-      data: { userIsDeleted: true, userLastUpdate: new Date() },
+      where: { user_id: parseInt(id) },
+      data: { user_is_deleted: true, user_last_update: new Date() },
     })
 
     return NextResponse.json({ success: true })
