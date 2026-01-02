@@ -15,7 +15,7 @@ Berdasarkan [dokumentasi Prisma](https://www.prisma.io/docs/orm/overview/databas
 
 Adapter sudah terinstall di `package.json`:
 ```json
-"@prisma/adapter-mariadb": "^7.2.0"
+"@prisma/adapter-mariadb": "^6.0.0"
 ```
 
 ## Configuration
@@ -34,12 +34,12 @@ datasource db {
 
 Di `lib/prisma.ts`, Prisma Client dikonfigurasi dengan MariaDB adapter:
 ```typescript
-import { PrismaMariaDB } from '@prisma/adapter-mariadb'
+import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 import mariadb from 'mariadb'
 
 // Create MariaDB connection pool
 const pool = mariadb.createPool(connectionConfig)
-const adapter = new PrismaMariaDB(pool)
+const adapter = new PrismaMariaDb(pool)
 
 export const prisma = new PrismaClient({
   adapter,

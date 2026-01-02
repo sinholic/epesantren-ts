@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-import { PrismaMariaDB } from '@prisma/adapter-mariadb'
+import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 import mariadb from 'mariadb'
 
 const globalForPrisma = globalThis as unknown as {
@@ -51,7 +51,7 @@ if (!globalForPrisma.pool) {
 }
 
 // Create Prisma MariaDB adapter
-const adapter = new PrismaMariaDB(pool)
+const adapter = new PrismaMariaDb(pool)
 
 export const prisma =
   globalForPrisma.prisma ??
