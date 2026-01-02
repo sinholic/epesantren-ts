@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { authenticateUser, generateToken } from '@/lib/auth'
 import { cookies } from 'next/headers'
+import { UserRoleType } from '@prisma/client'
 
 export async function POST(request: NextRequest) {
   try {
@@ -107,10 +108,10 @@ export async function POST(request: NextRequest) {
     console.error('Login error:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     const errorStack = error instanceof Error ? error.stack : undefined
-    
+
     // Don't expose stack trace in production
     return NextResponse.json(
-      { 
+      {
         error: 'Internal server error',
         details: process.env.NODE_ENV === 'development' ? errorMessage : undefined,
         stack: process.env.NODE_ENV === 'development' ? errorStack : undefined
