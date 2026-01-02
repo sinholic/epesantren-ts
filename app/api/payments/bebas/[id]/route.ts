@@ -17,11 +17,11 @@ export async function GET(
 
     const { id } = await params
     const bebas = await prisma.bebas.findUnique({
-      where: { bebasId: parseInt(id) },
+      where: { bebas_id: parseInt(id) },
       include: {
         student: true,
         payment: true,
-        bebasPays: {
+        bebas_pays: {
           include: {
             user: true,
           },
@@ -62,27 +62,27 @@ export async function PUT(
     const { id } = await params
     const body = await request.json()
     const {
-      studentStudentId,
-      paymentPaymentId,
-      bebasBill,
-      bebasTotalPay,
+      student_student_id,
+      payment_payment_id,
+      bebas_bill,
+      bebas_total_pay,
     } = body
 
     const updateData: any = {}
-    if (studentStudentId !== undefined) updateData.studentStudentId = studentStudentId
-    if (paymentPaymentId !== undefined) updateData.paymentPaymentId = paymentPaymentId
-    if (bebasBill !== undefined) updateData.bebasBill = parseFloat(bebasBill)
-    if (bebasTotalPay !== undefined) updateData.bebasTotalPay = parseFloat(bebasTotalPay)
+    if (student_student_id !== undefined) updateData.student_student_id = student_student_id
+    if (payment_payment_id !== undefined) updateData.payment_payment_id = payment_payment_id
+    if (bebas_bill !== undefined) updateData.bebas_bill = parseFloat(bebas_bill)
+    if (bebas_total_pay !== undefined) updateData.bebas_total_pay = parseFloat(bebas_total_pay)
 
-    updateData.bebasLastUpdate = new Date()
+    updateData.bebas_last_update = new Date()
 
     const bebas = await prisma.bebas.update({
-      where: { bebasId: parseInt(id) },
+      where: { bebas_id: parseInt(id) },
       data: updateData,
       include: {
         student: true,
         payment: true,
-        bebasPays: {
+        bebas_pays: {
           include: {
             user: true,
           },
@@ -116,7 +116,7 @@ export async function DELETE(
     const { id } = await params
     // Check if bebas has payments
     const bebasPays = await prisma.bebasPay.count({
-      where: { bebasBebasId: parseInt(id) },
+      where: { bebas_bebas_id: parseInt(id) },
     })
 
     if (bebasPays > 0) {
@@ -127,7 +127,7 @@ export async function DELETE(
     }
 
     await prisma.bebas.delete({
-      where: { bebasId: parseInt(id) },
+      where: { bebas_id: parseInt(id) },
     })
 
     return NextResponse.json({ success: true })

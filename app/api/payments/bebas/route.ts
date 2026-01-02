@@ -18,10 +18,10 @@ export async function GET(request: NextRequest) {
 
     const where: any = {}
     if (studentId) {
-      where.studentStudentId = parseInt(studentId)
+      where.student_student_id = parseInt(studentId)
     }
     if (paymentId) {
-      where.paymentPaymentId = parseInt(paymentId)
+      where.payment_payment_id = parseInt(paymentId)
     }
 
     const bebasPayments = await prisma.bebas.findMany({
@@ -29,14 +29,14 @@ export async function GET(request: NextRequest) {
       include: {
         student: true,
         payment: true,
-        bebasPays: {
+        bebas_pays: {
           include: {
             user: true,
           },
         },
       },
       orderBy: {
-        bebasId: 'desc',
+        bebas_id: 'desc',
       },
     })
 
@@ -62,18 +62,18 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     const {
-      studentStudentId,
-      paymentPaymentId,
-      bebasBill,
-      bebasTotalPay,
+      student_student_id,
+      payment_payment_id,
+      bebas_bill,
+      bebas_total_pay,
     } = body
 
     const bebas = await prisma.bebas.create({
       data: {
-        studentStudentId,
-        paymentPaymentId,
-        bebasBill: bebasBill ? parseFloat(bebasBill) : null,
-        bebasTotalPay: bebasTotalPay ? parseFloat(bebasTotalPay) : 0,
+        student_student_id,
+        payment_payment_id,
+        bebas_bill: bebas_bill ? parseFloat(bebas_bill) : null,
+        bebas_total_pay: bebas_total_pay ? parseFloat(bebas_total_pay) : 0,
       },
     })
 

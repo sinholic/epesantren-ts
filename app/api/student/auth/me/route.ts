@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     }
 
     const student = await prisma.student.findUnique({
-      where: { studentId: studentAuth.studentId },
+      where: { student_id: studentAuth.student_id },
       include: {
         class: true,
         major: true,
@@ -39,12 +39,12 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       student: {
-        studentId: student.studentId,
-        nis: student.studentNis,
-        nisn: student.studentNisn,
-        fullName: student.studentFullName,
-        gender: student.studentGender,
-        img: student.studentImg,
+        studentId: student.student_id,
+        nis: student.student_nis,
+        nisn: student.student_nisn,
+        fullName: student.student_full_name,
+        gender: student.student_gender,
+        img: student.student_img,
         class: student.class,
         major: student.major,
       },

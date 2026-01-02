@@ -21,8 +21,8 @@ export async function GET(request: NextRequest) {
     const where: any = {}
     if (search) {
       where.OR = [
-        { periodStart: { equals: parseInt(search) } },
-        { periodEnd: { equals: parseInt(search) } },
+        { period_start: { equals: parseInt(search) } },
+        { period_end: { equals: parseInt(search) } },
       ]
     }
 
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit,
         orderBy: {
-          periodId: 'desc',
+          period_id: 'desc',
         },
       }),
       prisma.period.count({ where }),
@@ -67,9 +67,9 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { periodStart, periodEnd, periodStatus } = body
+    const { period_start, period_end, period_status } = body
 
-    if (!periodStart || !periodEnd) {
+    if (!period_start || !period_end) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -77,18 +77,18 @@ export async function POST(request: NextRequest) {
     }
 
     // If setting as active, deactivate all other periods
-    if (periodStatus === true) {
+    if (period_status === true) {
       await prisma.period.updateMany({
-        where: { periodStatus: true },
-        data: { periodStatus: false },
+        where: { period_status: true },
+        data: { period_status: false },
       })
     }
 
     const period = await prisma.period.create({
       data: {
-        periodStart: parseInt(periodStart),
-        periodEnd: parseInt(periodEnd),
-        periodStatus: periodStatus || false,
+        period_start: parseInt(period_start),
+        period_end: parseInt(period_end),
+        period_status: period_status || false,
       },
     })
 

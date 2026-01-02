@@ -17,7 +17,7 @@ export async function GET(
 
     const { id } = await params
     const major = await prisma.major.findUnique({
-      where: { majorsId: parseInt(id) },
+      where: { majors_id: parseInt(id) },
     })
 
     if (!major) {
@@ -52,11 +52,11 @@ export async function PUT(
 
     const { id } = await params
     const body = await request.json()
-    const { majorsName, majorsShortName } = body
+    const { majors_name, majors_short_name } = body
 
     const updateData: any = {}
-    if (majorsName !== undefined) updateData.majorsName = majorsName
-    if (majorsShortName !== undefined) updateData.majorsShortName = majorsShortName
+    if (majors_name !== undefined) updateData.majors_name = majors_name
+    if (majors_short_name !== undefined) updateData.majors_short_name = majors_short_name
 
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json(
@@ -66,7 +66,7 @@ export async function PUT(
     }
 
     const major = await prisma.major.update({
-      where: { majorsId: parseInt(id) },
+      where: { majors_id: parseInt(id) },
       data: updateData,
     })
 
@@ -96,7 +96,7 @@ export async function DELETE(
     const { id } = await params
     // Check if major has students
     const students = await prisma.student.count({
-      where: { majorsMajorsId: parseInt(id) },
+      where: { majors_majors_id: parseInt(id) },
     })
 
     if (students > 0) {
@@ -107,7 +107,7 @@ export async function DELETE(
     }
 
     await prisma.major.delete({
-      where: { majorsId: parseInt(id) },
+      where: { majors_id: parseInt(id) },
     })
 
     return NextResponse.json({ success: true })

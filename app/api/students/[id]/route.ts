@@ -17,7 +17,7 @@ export async function GET(
 
     const { id } = await params
     const student = await prisma.student.findUnique({
-      where: { studentId: parseInt(id) },
+      where: { student_id: parseInt(id) },
       include: {
         class: true,
         major: true,
@@ -57,26 +57,26 @@ export async function PUT(
     const { id } = await params
     const body = await request.json()
     const {
-      studentNis,
-      studentNisn,
-      studentFullName,
-      studentGender,
-      classClassId,
-      majorsMajorsId,
-      studentStatus,
+      student_nis,
+      student_nisn,
+      student_full_name,
+      student_gender,
+      class_class_id,
+      majors_majors_id,
+      student_status,
     } = body
 
     const updateData: any = {}
-    if (studentNis !== undefined) updateData.studentNis = studentNis
-    if (studentNisn !== undefined) updateData.studentNisn = studentNisn
-    if (studentFullName !== undefined) updateData.studentFullName = studentFullName
-    if (studentGender !== undefined) updateData.studentGender = studentGender
-    if (classClassId !== undefined) updateData.classClassId = classClassId
-    if (majorsMajorsId !== undefined) updateData.majorsMajorsId = majorsMajorsId
-    if (studentStatus !== undefined) updateData.studentStatus = studentStatus
+    if (student_nis !== undefined) updateData.student_nis = student_nis
+    if (student_nisn !== undefined) updateData.student_nisn = student_nisn
+    if (student_full_name !== undefined) updateData.student_full_name = student_full_name
+    if (student_gender !== undefined) updateData.student_gender = student_gender
+    if (class_class_id !== undefined) updateData.class_class_id = class_class_id
+    if (majors_majors_id !== undefined) updateData.majors_majors_id = majors_majors_id
+    if (student_status !== undefined) updateData.student_status = student_status
 
     const student = await prisma.student.update({
-      where: { studentId: parseInt(id) },
+      where: { student_id: parseInt(id) },
       data: updateData,
     })
 
@@ -105,8 +105,8 @@ export async function DELETE(
 
     const { id } = await params
     await prisma.student.update({
-      where: { studentId: parseInt(id) },
-      data: { studentStatus: false },
+      where: { student_id: parseInt(id) },
+      data: { student_status: false },
     })
 
     return NextResponse.json({ success: true })

@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     }
 
     const user = await prisma.user.findUnique({
-      where: { userId: authResult.user!.userId },
+      where: { user_id: authResult.user!.user_id },
       include: {
         role: true,
       },
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Remove password from response
-    const { userPassword, ...userWithoutPassword } = user
+    const { user_password, ...userWithoutPassword } = user
 
     return NextResponse.json({ user: userWithoutPassword })
   } catch (error) {
@@ -51,18 +51,18 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { userFullName, userDescription, userEmail } = body
+    const { user_full_name, user_description, user_email } = body
 
     const updateData: any = {}
-    if (userFullName !== undefined) updateData.userFullName = userFullName
-    if (userDescription !== undefined) updateData.userDescription = userDescription
-    if (userEmail !== undefined) {
+    if (user_full_name !== undefined) updateData.user_full_name = user_full_name
+    if (user_description !== undefined) updateData.user_description = user_description
+    if (user_email !== undefined) {
       // Check if email already exists (excluding current user)
       const existingUser = await prisma.user.findFirst({
         where: {
-          userEmail,
-          userIsDeleted: false,
-          userId: { not: authResult.user!.userId },
+          user_email,
+          user_is_deleted: false,
+          user_id: { not: authResult.user!.user_id },
         },
       })
 
@@ -72,13 +72,13 @@ export async function PUT(request: NextRequest) {
           { status: 400 }
         )
       }
-      updateData.userEmail = userEmail
+      updateData.user_email = user_email
     }
 
-    updateData.userLastUpdate = new Date()
+    updateData.user_last_update = new Date()
 
     const user = await prisma.user.update({
-      where: { userId: authResult.user!.userId },
+      where: { user_id: authResult.user!.user_id },
       data: updateData,
       include: {
         role: true,
@@ -86,7 +86,7 @@ export async function PUT(request: NextRequest) {
     })
 
     // Remove password from response
-    const { userPassword, ...userWithoutPassword } = user
+    const { user_password, ...userWithoutPassword } = user
 
     return NextResponse.json({ user: userWithoutPassword })
   } catch (error) {

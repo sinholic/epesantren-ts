@@ -39,10 +39,10 @@ export async function PUT(request: NextRequest) {
 
     // Get current user with password
     const user = await prisma.user.findUnique({
-      where: { userId: authResult.user!.userId },
+      where: { user_id: authResult.user!.user_id },
     })
 
-    if (!user || !user.userPassword) {
+    if (!user || !user.user_password) {
       return NextResponse.json(
         { error: 'User not found' },
         { status: 404 }
@@ -50,7 +50,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Verify current password
-    const isPasswordValid = await bcrypt.compare(currentPassword, user.userPassword)
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.user_password)
     if (!isPasswordValid) {
       return NextResponse.json(
         { error: 'Current password is incorrect' },
@@ -63,10 +63,10 @@ export async function PUT(request: NextRequest) {
 
     // Update password
     await prisma.user.update({
-      where: { userId: authResult.user!.userId },
+      where: { user_id: authResult.user!.user_id },
       data: {
-        userPassword: hashedPassword,
-        userLastUpdate: new Date(),
+        user_password: hashedPassword,
+        user_last_update: new Date(),
       },
     })
 

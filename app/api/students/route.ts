@@ -22,12 +22,12 @@ export async function GET(request: NextRequest) {
     const [students, total] = await Promise.all([
       prisma.student.findMany({
         where: {
-          studentStatus: true,
+          student_status: true,
         },
         skip,
         take: limit,
         orderBy: {
-          studentId: 'desc',
+          student_id: 'desc',
         },
         include: {
           class: true,
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
       }),
       prisma.student.count({
         where: {
-          studentStatus: true,
+          student_status: true,
         },
       }),
     ])
@@ -72,29 +72,29 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     const {
-      studentNis,
-      studentNisn,
-      studentPassword,
-      studentFullName,
-      studentGender,
-      classClassId,
-      majorsMajorsId,
+      student_nis,
+      student_nisn,
+      student_password,
+      student_full_name,
+      student_gender,
+      class_class_id,
+      majors_majors_id,
     } = body
 
     // Hash password
     const bcrypt = await import('bcryptjs')
-    const hashedPassword = await bcrypt.hash(studentPassword || 'password123', 10)
+    const hashedPassword = await bcrypt.hash(student_password || 'password123', 10)
 
     const student = await prisma.student.create({
       data: {
-        studentNis,
-        studentNisn,
-        studentPassword: hashedPassword,
-        studentFullName,
-        studentGender,
-        classClassId,
-        majorsMajorsId,
-        studentStatus: true,
+        student_nis,
+        student_nisn,
+        student_password: hashedPassword,
+        student_full_name,
+        student_gender,
+        class_class_id,
+        majors_majors_id,
+        student_status: true,
       },
     })
 

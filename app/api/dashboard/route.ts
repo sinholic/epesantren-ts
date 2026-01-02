@@ -21,19 +21,19 @@ export async function GET(request: NextRequest) {
       totalTeachers,
       recentPayments,
     ] = await Promise.all([
-      prisma.student.count({ where: { studentStatus: true } }),
-      prisma.user.count({ where: { userIsDeleted: false } }),
+      prisma.student.count({ where: { student_status: true } }),
+      prisma.user.count({ where: { user_is_deleted: false } }),
       prisma.payment.count(),
       prisma.$queryRaw<any[]>`SELECT COUNT(*) as count FROM employee WHERE employee_status = 1`.then((r: any) => r[0]?.count || 0),
       prisma.bulan.findMany({
         take: 10,
-        orderBy: { bulanInputDate: 'desc' },
+        orderBy: { bulan_input_date: 'desc' },
         include: {
           student: {
             select: {
-              studentId: true,
-              studentNis: true,
-              studentFullName: true,
+              student_id: true,
+              student_nis: true,
+              student_full_name: true,
             },
           },
           payment: {
@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
       totalPayments,
       totalTeachers,
       recentActivities: recentPayments.map((p: any) => 
-        `Pembayaran ${p.student?.studentFullName || 'Siswa'} - ${p.payment?.pos?.posName || 'Payment'}`
+        `Pembayaran ${p.student?.student_full_name || 'Siswa'} - ${p.payment?.pos?.pos_name || 'Payment'}`
       ),
     })
   } catch (error) {

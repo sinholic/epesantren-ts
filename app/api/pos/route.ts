@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     const where: any = {}
     if (search) {
-      where.posName = { contains: search }
+      where.pos_name = { contains: search }
     }
 
     const [pos, total] = await Promise.all([
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit,
         orderBy: {
-          posId: 'desc',
+          pos_id: 'desc',
         },
       }),
       prisma.pos.count({ where }),
@@ -64,9 +64,9 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { posName, posDescription } = body
+    const { pos_name, pos_description } = body
 
-    if (!posName) {
+    if (!pos_name) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -75,8 +75,8 @@ export async function POST(request: NextRequest) {
 
     const pos = await prisma.pos.create({
       data: {
-        posName,
-        posDescription,
+        pos_name,
+        pos_description,
       },
     })
 
