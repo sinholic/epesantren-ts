@@ -71,9 +71,9 @@ export default function LoginPage() {
 
       // Redirect based on role
       if (data.redirectPath) {
-        router.push(data.redirectPath)
+        router.replace(data.redirectPath)
       } else {
-        router.push('/')
+        router.replace('/manage/dashboard')
       }
     } catch (err) {
       setError('An error occurred. Please try again.')
