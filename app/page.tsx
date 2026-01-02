@@ -3,6 +3,17 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
+/**
+ * Renders the application's login page and manages client-side authentication flow.
+ *
+ * On mount, checks the current authentication state and redirects authenticated users
+ * to a role-specific dashboard (ADMIN → /manage/dashboard, STUDENT → /student/dashboard,
+ * TEACHER → /teacher/dashboard). Presents a username/password form that submits credentials
+ * to /api/auth/login, shows server-provided error messages, and redirects to a server-provided
+ * `redirectPath` or `/manage/dashboard` on successful login.
+ *
+ * @returns The JSX element for the login page.
+ */
 export default function LoginPage() {
   const router = useRouter()
   const [username, setUsername] = useState('')
