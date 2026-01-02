@@ -61,38 +61,48 @@ export function verifyTeacherToken(token: string): TeacherAuth | null {
 }
 
 export async function authenticateTeacher(nip: string, password: string): Promise<TeacherAuth | null> {
-  // Note: Using raw query since employee table structure might vary
-  const employees = await prisma.$queryRaw<any[]>`
-    SELECT * FROM employee 
-    WHERE nip = ${nip} 
-    AND employee_status = 1
-    LIMIT 1
-  `
+  try {
+    // Note: Using raw query since employee table structure might vary
+    const employees = await prisma.$queryRaw<any[]>`
+      SELECT * FROM employee 
+      WHERE nip = ${nip} 
+      AND employee_status = 1
+      LIMIT 1
+    `
 
-  if (!employees || employees.length === 0) {
-    return null
-  }
+    if (!employees || employees.length === 0) {
+      return null
+    }
 
-  const employee = employees[0]
-  // Try both password field names
-  const passwordField = employee.password || employee.employee_password
-  if (!passwordField) {
-    return null
-  }
+    const employee = employees[0]
+    // Try both password field names
+    const passwordField = employee.password || employee.employee_password
+    if (!passwordField) {
+      return null
+    }
 
-  const isValid = await verifyTeacherPassword(password, passwordField)
-  if (!isValid) {
-    return null
-  }
+    const isValid = await verifyTeacherPassword(password, passwordField)
+    if (!isValid) {
+      return null
+    }
 
-  // Upgrade password if it was SHA1
-  if (passwordField.length === 40 && /^[a-f0-9]{40}$/i.test(passwordField)) {
-    await upgradeTeacherPassword(employee.employee_id || employee.id, password)
-  }
+    // Upgrade password if it was SHA1
+    if (passwordField.length === 40 && /^[a-f0-9]{40}$/i.test(passwordField)) {
+      try {
+        await upgradeTeacherPassword(employee.employee_id || employee.id, password)
+      } catch (error) {
+        // Log error but don't fail authentication if password upgrade fails
+        console.error('Failed to upgrade teacher password:', error)
+      }
+    }
 
-  return {
-    employeeId: employee.employee_id || employee.id,
-    nip: employee.nip,
-    employeeFullName: employee.employee_full_name || employee.name,
+    return {
+      employeeId: employee.employee_id || employee.id,
+      nip: employee.nip,
+      employeeFullName: employee.employee_full_name || employee.name,
+    }
+  } catch (error) {
+    console.error('Database error in authenticateTeacher:', error)
+    throw new Error(`Database connection error: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }

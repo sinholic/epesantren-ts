@@ -66,31 +66,41 @@ export function verifyToken(token: string): AuthUser | null {
 }
 
 export async function authenticateUser(email: string, password: string): Promise<AuthUser | null> {
-  const user = await prisma.user.findFirst({
-    where: {
-      userEmail: email,
-      userIsDeleted: false,
-    },
-  })
+  try {
+    const user = await prisma.user.findFirst({
+      where: {
+        userEmail: email,
+        userIsDeleted: false,
+      },
+    })
 
-  if (!user || !user.userPassword) {
-    return null
-  }
+    if (!user || !user.userPassword) {
+      return null
+    }
 
-  const isValid = await verifyPassword(password, user.userPassword)
-  if (!isValid) {
-    return null
-  }
+    const isValid = await verifyPassword(password, user.userPassword)
+    if (!isValid) {
+      return null
+    }
 
-  // Upgrade password if it was SHA1
-  if (user.userPassword.length === 40 && /^[a-f0-9]{40}$/i.test(user.userPassword)) {
-    await upgradePassword(user.userId, password)
-  }
+    // Upgrade password if it was SHA1
+    if (user.userPassword.length === 40 && /^[a-f0-9]{40}$/i.test(user.userPassword)) {
+      try {
+        await upgradePassword(user.userId, password)
+      } catch (error) {
+        // Log error but don't fail authentication if password upgrade fails
+        console.error('Failed to upgrade password:', error)
+      }
+    }
 
-  return {
-    userId: user.userId,
-    userEmail: user.userEmail,
-    userFullName: user.userFullName,
-    userRoleRoleId: user.userRoleRoleId,
+    return {
+      userId: user.userId,
+      userEmail: user.userEmail,
+      userFullName: user.userFullName,
+      userRoleRoleId: user.userRoleRoleId,
+    }
+  } catch (error) {
+    console.error('Database error in authenticateUser:', error)
+    throw new Error(`Database connection error: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }
