@@ -18,17 +18,17 @@ enum Gender {
 }
 
 enum PaymentType {
-  bulan
-  bebas
+  BULAN
+  BEBAS
 }
 
 enum Agama {
-  Islam
-  Kristen
-  Khatolik
-  Hindu
-  Budha
-  Konghucu
+  ISLAM
+  KRISTEN
+  KATOLIK
+  HINDU
+  BUDHA
+  KONGHUCU
 }
 
 enum Pendidikan {

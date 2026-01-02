@@ -5,11 +5,14 @@ This document describes the migration from MySQL/MariaDB to PostgreSQL with snak
 ## Changes Made
 
 ### 1. Database Provider
+
 - Changed from `mysql` to `postgresql` in Prisma schema
 - Updated connection string format in `.env.example`
 
 ### 2. Field Names
+
 All field names have been converted from camelCase to snake_case:
+
 - `userId` → `user_id`
 - `userEmail` → `user_email`
 - `studentNis` → `student_nis`
@@ -17,11 +20,12 @@ All field names have been converted from camelCase to snake_case:
 - etc.
 
 ### 3. Enums Created
+
 The following enums have been created for better type safety:
 
 - **Gender**: `L` (Laki-laki), `P` (Perempuan)
-- **PaymentType**: `bulan`, `bebas`
-- **Agama**: `Islam`, `Kristen`, `Khatolik`, `Hindu`, `Budha`, `Konghucu`
+- **PaymentType**: `BULAN`, `BEBAS`
+- **Agama**: `ISLAM`, `KRISTEN`, `KATOLIK`, `HINDU`, `BUDHA`, `KONGHUCU`
 - **Pendidikan**: `TIDAK_SEKOLAH`, `SD`, `SMP`, `SMA`, `D3`, `S1`, `S2`, `S3`
 - **TinggalBersama**: `BERSAMA_ORANGTUA`, `BERSAMA_WALI`
 - **StatusOrangTua**: `MASIH_HIDUP`, `MENINGGAL`
@@ -30,6 +34,7 @@ The following enums have been created for better type safety:
 ## Files Updated
 
 ### Core Libraries
+
 - ✅ `lib/auth.ts` - Updated to use snake_case
 - ✅ `lib/auth-student.ts` - Updated to use snake_case
 - ✅ `lib/auth-ppdb.ts` - Updated to use snake_case and Prisma model
@@ -37,13 +42,16 @@ The following enums have been created for better type safety:
 - ✅ `prisma/schema.prisma` - Complete rewrite with PostgreSQL, snake_case, and enums
 
 ### API Routes (Partially Updated)
+
 - ✅ `app/api/auth/login/route.ts` - Updated response format
 - ✅ `app/api/auth/me/route.ts` - Updated field names
 
 ### API Routes (Need Update)
+
 The following files need to be updated to use snake_case field names:
 
 #### Authentication Routes
+
 - `app/api/student/auth/login/route.ts`
 - `app/api/student/auth/me/route.ts`
 - `app/api/teacher/auth/login/route.ts`
@@ -52,6 +60,7 @@ The following files need to be updated to use snake_case field names:
 - `app/api/ppdb/auth/me/route.ts`
 
 #### Data Management Routes
+
 - `app/api/users/route.ts`
 - `app/api/users/[id]/route.ts`
 - `app/api/users/roles/route.ts`
@@ -77,6 +86,7 @@ The following files need to be updated to use snake_case field names:
 - `app/api/dashboard/route.ts`
 
 #### Frontend Pages (Need Update)
+
 - `app/manage/students/page.tsx`
 - `app/manage/payments/page.tsx`
 - All other frontend pages that use Prisma models
@@ -84,6 +94,7 @@ The following files need to be updated to use snake_case field names:
 ## Field Name Mapping
 
 ### User Model
+
 ```typescript
 // Old (camelCase)
 userId, userEmail, userPassword, userFullName, userImage, userDescription, userRoleRoleId, userIsDeleted, userInputDate, userLastUpdate
@@ -93,6 +104,7 @@ user_id, user_email, user_password, user_full_name, user_image, user_description
 ```
 
 ### Student Model
+
 ```typescript
 // Old
 studentId, studentNis, studentNisn, studentPassword, studentFullName, studentGender, studentBornPlace, studentBornDate, studentImg, studentPhone, studentHobby, studentAddress, studentNameOfMother, studentNameOfFather, studentParentPhone, classClassId, majorsMajorsId, studentStatus, studentInputDate, studentLastUpdate
@@ -102,6 +114,7 @@ student_id, student_nis, student_nisn, student_password, student_full_name, stud
 ```
 
 ### Payment Model
+
 ```typescript
 // Old
 paymentId, paymentType, periodPeriodId, posPosId, paymentInputDate, paymentLastUpdate
@@ -113,6 +126,7 @@ payment_id, payment_type, period_period_id, pos_pos_id, payment_input_date, paym
 ## How to Update Remaining Files
 
 ### Step 1: Update Prisma Queries
+
 Replace all camelCase field names with snake_case:
 
 ```typescript
@@ -136,6 +150,7 @@ const user = await prisma.user.findUnique({
 ```
 
 ### Step 2: Update Response Objects
+
 Keep API responses in camelCase for frontend compatibility:
 
 ```typescript
@@ -157,6 +172,7 @@ return NextResponse.json({
 ```
 
 ### Step 3: Update Enum Values
+
 Use enum values instead of strings:
 
 ```typescript
@@ -168,6 +184,7 @@ student_gender: Gender.L // or Gender.P
 ```
 
 ### Step 4: Update Create/Update Operations
+
 ```typescript
 // Before
 await prisma.student.create({
@@ -189,16 +206,19 @@ await prisma.student.create({
 ## Database Migration
 
 ### 1. Generate Prisma Client
+
 ```bash
 yarn prisma:generate
 ```
 
 ### 2. Create Migration
+
 ```bash
 yarn prisma:migrate dev --name migrate_to_postgres_snake_case
 ```
 
 ### 3. Apply Migration
+
 ```bash
 yarn prisma:migrate deploy
 ```
@@ -206,6 +226,7 @@ yarn prisma:migrate deploy
 ## Testing
 
 After migration, test the following:
+
 1. ✅ Authentication (login, logout, me)
 2. ⏳ Student CRUD operations
 3. ⏳ Payment operations
