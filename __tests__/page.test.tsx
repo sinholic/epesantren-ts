@@ -10,7 +10,6 @@ vi.mock('next/navigation', () => ({
     }),
 }))
 
-// Mock fetch
 global.fetch = vi.fn()
 
 test('Page renders correctly', async () => {
