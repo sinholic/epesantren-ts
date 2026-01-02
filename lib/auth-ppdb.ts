@@ -5,9 +5,9 @@ import { prisma } from './prisma'
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production'
 
 export interface PPDBAuth {
-  participantId: number
+  participant_id: number
   nisn: string | null
-  namaPeserta: string | null
+  nama_peserta: string | null
 }
 
 export async function verifyPPDBPassword(password: string, hashedPassword: string): Promise<boolean> {
@@ -24,21 +24,18 @@ export async function hashPPDBPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 10)
 }
 
-export async function upgradePPDBPassword(participantId: number, password: string): Promise<void> {
+export async function upgradePPDBPassword(participant_id: number, password: string): Promise<void> {
   const hashedPassword = await hashPPDBPassword(password)
-  // Note: This assumes ppdb_participant table exists
-  // You may need to add this to Prisma schema if not already there
-  await prisma.$executeRaw`
-    UPDATE ppdb_participant 
-    SET password = ${hashedPassword} 
-    WHERE id = ${participantId}
-  `
+  await prisma.pPDBParticipant.update({
+    where: { id: participant_id },
+    data: { password: hashedPassword },
+  })
 }
 
 export function generatePPDBToken(participant: PPDBAuth): string {
   return jwt.sign(
     {
-      participantId: participant.participantId,
+      participantId: participant.participant_id,
       nisn: participant.nisn,
       type: 'ppdb',
     },
@@ -52,9 +49,9 @@ export function verifyPPDBToken(token: string): PPDBAuth | null {
     const decoded = jwt.verify(token, JWT_SECRET) as any
     if (decoded.type !== 'ppdb') return null
     return {
-      participantId: decoded.participantId,
+      participant_id: decoded.participantId,
       nisn: decoded.nisn,
-      namaPeserta: null,
+      nama_peserta: null,
     }
   } catch (error) {
     return null
@@ -63,19 +60,16 @@ export function verifyPPDBToken(token: string): PPDBAuth | null {
 
 export async function authenticatePPDB(nisn: string, password: string): Promise<PPDBAuth | null> {
   try {
-    // Note: Using raw query since ppdb_participant might not be in Prisma schema yet
-    const participants = await prisma.$queryRaw<any[]>`
-      SELECT * FROM ppdb_participant 
-      WHERE nisn = ${nisn} 
-      AND status = 1
-      LIMIT 1
-    `
+    const participant = await prisma.pPDBParticipant.findFirst({
+      where: {
+        nisn: nisn,
+      },
+    })
 
-    if (!participants || participants.length === 0 || !participants[0].password) {
+    if (!participant || !participant.password) {
       return null
     }
 
-    const participant = participants[0]
     const isValid = await verifyPPDBPassword(password, participant.password)
     if (!isValid) {
       return null
@@ -92,9 +86,9 @@ export async function authenticatePPDB(nisn: string, password: string): Promise<
     }
 
     return {
-      participantId: participant.id,
+      participant_id: participant.id,
       nisn: participant.nisn,
-      namaPeserta: participant.nama_peserta,
+      nama_peserta: participant.nama_peserta,
     }
   } catch (error) {
     console.error('Database error in authenticatePPDB:', error)

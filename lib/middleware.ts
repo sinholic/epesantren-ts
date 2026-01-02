@@ -3,10 +3,10 @@ import { verifyToken } from './auth'
 
 export interface AuthenticatedRequest extends NextRequest {
   user?: {
-    userId: number
-    userEmail: string | null
-    userFullName: string | null
-    userRoleRoleId: number | null
+    user_id: number
+    user_email: string | null
+    user_full_name: string | null
+    user_role_role_id: number | null
   }
 }
 
@@ -25,10 +25,10 @@ export function getAuthToken(request: NextRequest): string | null {
 export async function requireAuth(request: NextRequest): Promise<{
   success: boolean
   user?: {
-    userId: number
-    userEmail: string | null
-    userFullName: string | null
-    userRoleRoleId: number | null
+    user_id: number
+    user_email: string | null
+    user_full_name: string | null
+    user_role_role_id: number | null
   }
 }> {
   const token = getAuthToken(request)
@@ -59,7 +59,7 @@ export function requireRole(
       )
     }
 
-    if (!authResult.user.userRoleRoleId || !allowedRoles.includes(authResult.user.userRoleRoleId)) {
+    if (!authResult.user.user_role_role_id || !allowedRoles.includes(authResult.user.user_role_role_id)) {
       return NextResponse.json(
         { error: 'Forbidden: Insufficient permissions' },
         { status: 403 }

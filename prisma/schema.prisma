@@ -7,34 +7,83 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql" // MariaDB uses mysql provider with @prisma/adapter-mariadb
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+// Enums
+enum Gender {
+  L // Laki-laki
+  P // Perempuan
+}
+
+enum PaymentType {
+  bulan
+  bebas
+}
+
+enum Agama {
+  Islam
+  Kristen
+  Khatolik
+  Hindu
+  Budha
+  Konghucu
+}
+
+enum Pendidikan {
+  TIDAK_SEKOLAH // Tidak Sekolah
+  SD
+  SMP
+  SMA
+  D3
+  S1
+  S2
+  S3
+}
+
+enum TinggalBersama {
+  BERSAMA_ORANGTUA // Bersama Orangtua
+  BERSAMA_WALI // Bersama Wali
+}
+
+enum StatusOrangTua {
+  MASIH_HIDUP // Masih Hidup
+  MENINGGAL // Meninggal
+}
+
+enum PaymentMethod {
+  CASH // Tunai
+  TRANSFER // Transfer Bank
+  E_WALLET // E-Wallet
+  OTHER // Lainnya
+}
+
+// Models
 model UserRole {
-  roleId    Int     @id @default(autoincrement()) @map("role_id")
-  roleName  String? @map("role_name") @db.VarChar(100)
+  role_id   Int    @id @default(autoincrement())
+  role_name String? @db.VarChar(100)
   users     User[]
 
   @@map("user_roles")
 }
 
 model User {
-  userId          Int       @id @default(autoincrement()) @map("user_id")
-  userEmail       String?   @map("user_email") @db.VarChar(45)
-  userPassword    String?   @map("user_password") @db.VarChar(100)
-  userFullName    String?   @map("user_full_name") @db.VarChar(255)
-  userImage       String?   @map("user_image") @db.VarChar(255)
-  userDescription String?   @map("user_description") @db.Text
-  userRoleRoleId   Int?      @map("user_role_role_id") @db.UnsignedInt
-  userIsDeleted    Boolean   @default(false) @map("user_is_deleted")
-  userInputDate    DateTime? @map("user_input_date") @db.Timestamp(0)
-  userLastUpdate   DateTime? @default(now()) @updatedAt @map("user_last_update") @db.Timestamp(0)
+  user_id          Int       @id @default(autoincrement())
+  user_email       String?   @db.VarChar(45)
+  user_password    String?   @db.VarChar(100)
+  user_full_name   String?   @db.VarChar(255)
+  user_image       String?   @db.VarChar(255)
+  user_description String?   @db.Text
+  user_role_role_id Int?
+  user_is_deleted  Boolean   @default(false)
+  user_input_date  DateTime? @db.Timestamp
+  user_last_update DateTime? @default(now()) @updatedAt @db.Timestamp
 
-  role            UserRole? @relation(fields: [userRoleRoleId], references: [roleId], onDelete: SetNull, onUpdate: SetNull)
+  role            UserRole? @relation(fields: [user_role_role_id], references: [role_id], onDelete: SetNull, onUpdate: SetNull)
   logs            Log[]
-  bulanPayments   Bulan[]
-  bebasPayments   BebasPay[]
+  bulan_payments  Bulan[]
+  bebas_payments  BebasPay[]
   kredits         Kredit[]
   debits          Debit[]
   informations    Information[]
@@ -43,108 +92,108 @@ model User {
 }
 
 model Log {
-  logId     Int       @id @default(autoincrement()) @map("log_id")
-  logDate   DateTime? @map("log_date") @db.Timestamp(0)
-  logAction String?   @map("log_action") @db.VarChar(45)
-  logModule String?   @map("log_module") @db.VarChar(45)
-  logInfo   String?   @map("log_info") @db.Text
-  userId    Int?      @map("user_id") @db.UnsignedInt
+  log_id     Int       @id @default(autoincrement())
+  log_date   DateTime? @db.Timestamp
+  log_action String?   @db.VarChar(45)
+  log_module String?   @db.VarChar(45)
+  log_info   String?   @db.Text
+  user_id    Int?
 
-  user User? @relation(fields: [userId], references: [userId], onDelete: SetNull, onUpdate: SetNull)
+  user User? @relation(fields: [user_id], references: [user_id], onDelete: SetNull, onUpdate: SetNull)
 
   @@map("logs")
 }
 
 model CiSession {
   id        String   @id @db.VarChar(40)
-  ipAddress String   @map("ip_address") @db.VarChar(45)
+  ip_address String  @db.VarChar(45)
   timestamp Int      @default(0)
-  data      Bytes    @db.Blob
+  data      Bytes    @db.ByteA
 
   @@index([timestamp])
   @@map("ci_sessions")
 }
 
 model Class {
-  classId   Int       @id @default(autoincrement()) @map("class_id")
-  className String?   @map("class_name") @db.VarChar(45)
-  students  Student[]
+  class_id   Int       @id @default(autoincrement())
+  class_name String?   @db.VarChar(45)
+  students   Student[]
 
   @@map("class")
 }
 
 model Major {
-  majorsId       Int       @id @default(autoincrement()) @map("majors_id")
-  majorsName     String?   @map("majors_name") @db.VarChar(100)
-  majorsShortName String?  @map("majors_short_name") @db.VarChar(45)
-  students       Student[]
+  majors_id        Int       @id @default(autoincrement())
+  majors_name      String?   @db.VarChar(100)
+  majors_short_name String?  @db.VarChar(45)
+  students         Student[]
 
   @@map("majors")
 }
 
 model Student {
-  studentId          Int       @id @default(autoincrement()) @map("student_id")
-  studentNis         String?   @map("student_nis") @db.VarChar(45)
-  studentNisn        String?   @map("student_nisn") @db.VarChar(45)
-  studentPassword    String?   @map("student_password") @db.VarChar(100)
-  studentFullName    String?   @map("student_full_name") @db.VarChar(255)
-  studentGender      String?   @map("student_gender") @db.VarChar(1)
-  studentBornPlace   String?   @map("student_born_place") @db.VarChar(45)
-  studentBornDate    DateTime? @map("student_born_date") @db.Date
-  studentImg         String?   @map("student_img") @db.VarChar(255)
-  studentPhone       String?   @map("student_phone") @db.VarChar(45)
-  studentHobby       String?   @map("student_hobby") @db.VarChar(100)
-  studentAddress     String?   @map("student_address") @db.Text
-  studentNameOfMother String?  @map("student_name_of_mother") @db.VarChar(255)
-  studentNameOfFather String?  @map("student_name_of_father") @db.VarChar(255)
-  studentParentPhone String?   @map("student_parent_phone") @db.VarChar(45)
-  classClassId       Int?      @map("class_class_id")
-  majorsMajorsId     Int?      @map("majors_majors_id")
-  studentStatus      Boolean   @default(true) @map("student_status")
-  studentInputDate   DateTime? @map("student_input_date") @db.Timestamp(0)
-  studentLastUpdate  DateTime? @map("student_last_update") @db.Timestamp(0)
+  student_id            Int       @id @default(autoincrement())
+  student_nis           String?   @db.VarChar(45)
+  student_nisn          String?   @db.VarChar(45)
+  student_password      String?   @db.VarChar(100)
+  student_full_name     String?   @db.VarChar(255)
+  student_gender        Gender?
+  student_born_place    String?   @db.VarChar(45)
+  student_born_date     DateTime? @db.Date
+  student_img           String?   @db.VarChar(255)
+  student_phone         String?   @db.VarChar(45)
+  student_hobby         String?   @db.VarChar(100)
+  student_address       String?   @db.Text
+  student_name_of_mother String?  @db.VarChar(255)
+  student_name_of_father String?  @db.VarChar(255)
+  student_parent_phone  String?   @db.VarChar(45)
+  class_class_id       Int?
+  majors_majors_id     Int?
+  student_status       Boolean   @default(true)
+  student_input_date   DateTime? @db.Timestamp
+  student_last_update  DateTime? @db.Timestamp
 
-  class            Class?    @relation(fields: [classClassId], references: [classId], onDelete: SetNull, onUpdate: SetNull)
-  major            Major?    @relation(fields: [majorsMajorsId], references: [majorsId], onDelete: NoAction, onUpdate: NoAction)
+  class            Class?    @relation(fields: [class_class_id], references: [class_id], onDelete: SetNull, onUpdate: SetNull)
+  major            Major?    @relation(fields: [majors_majors_id], references: [majors_id], onDelete: NoAction, onUpdate: NoAction)
   bebas            Bebas[]
   bulan            Bulan[]
-  logTrxs          LogTrx[]
+  log_trxs         LogTrx[]
   debits           Debit[]
 
   @@map("student")
 }
 
 model Period {
-  periodId     Int       @id @default(autoincrement()) @map("period_id")
-  periodStart  Int?      @map("period_start") @db.Year
-  periodEnd    Int?      @map("period_end") @db.Year
-  periodStatus Boolean   @default(false) @map("period_status")
-  payments     Payment[]
+  period_id     Int       @id @default(autoincrement())
+  period_start  Int?
+  period_end    Int?
+  period_status Boolean   @default(false)
+  payments      Payment[]
 
   @@map("period")
 }
 
 model Pos {
-  posId          Int       @id @default(autoincrement()) @map("pos_id")
-  posName        String?   @map("pos_name") @db.VarChar(100)
-  posDescription String?   @map("pos_description") @db.VarChar(100)
-  jurnalId       Int?      @map("jurnal_id")
-  payments       Payment[]
-  debits         Debit[]
+  pos_id          Int       @id @default(autoincrement())
+  pos_name        String?   @db.VarChar(100)
+  pos_description String?   @db.VarChar(100)
+  jurnal_id       Int?
+  payments        Payment[]
+  debits          Debit[]
 
   @@map("pos")
 }
 
 model Payment {
-  paymentId       Int       @id @default(autoincrement()) @map("payment_id")
-  paymentType     String?   @map("payment_type") @db.VarChar(10)
-  periodPeriodId  Int?      @map("period_period_id")
-  posPosId        Int?      @map("pos_pos_id")
-  paymentInputDate DateTime? @map("payment_input_date") @db.Timestamp(0)
-  paymentLastUpdate DateTime? @map("payment_last_update") @db.Timestamp(0)
+  payment_id        Int         @id @default(autoincrement())
+  payment_type      PaymentType?
+  period_period_id  Int?
+  pos_pos_id        Int?
+  payment_input_date DateTime?  @db.Timestamp
+  payment_last_update DateTime? @db.Timestamp
 
-  period Period? @relation(fields: [periodPeriodId], references: [periodId], onDelete: SetNull, onUpdate: SetNull)
-  pos    Pos?    @relation(fields: [posPosId], references: [posId], onDelete: SetNull, onUpdate: SetNull)
+  period Period? @relation(fields: [period_period_id], references: [period_id], onDelete: SetNull, onUpdate: SetNull)
+  pos    Pos?    @relation(fields: [pos_pos_id], references: [pos_id], onDelete: SetNull, onUpdate: SetNull)
   bebas  Bebas[]
   bulan  Bulan[]
 
@@ -152,113 +201,113 @@ model Payment {
 }
 
 model Bebas {
-  bebasId         Int       @id @default(autoincrement()) @map("bebas_id")
-  studentStudentId Int?    @map("student_student_id")
-  paymentPaymentId Int?    @map("payment_payment_id")
-  bebasBill       Decimal?  @map("bebas_bill") @db.Decimal(10, 2)
-  bebasTotalPay   Decimal? @default(0) @map("bebas_total_pay") @db.Decimal(10, 2)
-  bebasInputDate  DateTime? @map("bebas_input_date") @db.Timestamp(0)
-  bebasLastUpdate DateTime? @map("bebas_last_update") @db.Timestamp(0)
+  bebas_id          Int       @id @default(autoincrement())
+  student_student_id Int?
+  payment_payment_id Int?
+  bebas_bill        Decimal?  @db.Decimal(10, 2)
+  bebas_total_pay   Decimal?  @default(0) @db.Decimal(10, 2)
+  bebas_input_date  DateTime? @db.Timestamp
+  bebas_last_update DateTime? @db.Timestamp
 
-  student Student? @relation(fields: [studentStudentId], references: [studentId], onDelete: SetNull, onUpdate: SetNull)
-  payment Payment? @relation(fields: [paymentPaymentId], references: [paymentId], onDelete: SetNull, onUpdate: SetNull)
-  bebasPays BebasPay[]
+  student Student? @relation(fields: [student_student_id], references: [student_id], onDelete: SetNull, onUpdate: SetNull)
+  payment Payment? @relation(fields: [payment_payment_id], references: [payment_id], onDelete: SetNull, onUpdate: SetNull)
+  bebas_pays BebasPay[]
 
   @@map("bebas")
 }
 
 model Month {
-  monthId   Int     @id @default(autoincrement()) @map("month_id")
-  monthName String? @map("month_name") @db.VarChar(45)
-  bulan     Bulan[]
+  month_id   Int     @id @default(autoincrement())
+  month_name String? @db.VarChar(45)
+  bulan      Bulan[]
 
   @@map("month")
 }
 
 model Bulan {
-  bulanId         Int       @id @default(autoincrement()) @map("bulan_id")
-  studentStudentId Int?     @map("student_student_id")
-  paymentPaymentId Int?     @map("payment_payment_id")
-  monthMonthId    Int?      @map("month_month_id")
-  bulanBill       Decimal?  @map("bulan_bill") @db.Decimal(10, 2)
-  bulanStatus     Boolean   @default(false) @map("bulan_status")
-  bulanNumberPay  String?   @map("bulan_number_pay") @db.VarChar(100)
-  bulanDatePay    DateTime? @map("bulan_date_pay") @db.Date
-  userUserId      Int?      @map("user_user_id") @db.UnsignedInt
-  bulanInputDate  DateTime? @map("bulan_input_date") @db.Timestamp(0)
-  bulanLastUpdate DateTime? @map("bulan_last_update") @db.Timestamp(0)
+  bulan_id          Int       @id @default(autoincrement())
+  student_student_id Int?
+  payment_payment_id Int?
+  month_month_id    Int?
+  bulan_bill        Decimal?  @db.Decimal(10, 2)
+  bulan_status      Boolean   @default(false)
+  bulan_number_pay  String?   @db.VarChar(100)
+  bulan_date_pay    DateTime? @db.Date
+  user_user_id      Int?
+  bulan_input_date  DateTime? @db.Timestamp
+  bulan_last_update DateTime? @db.Timestamp
 
-  student Student? @relation(fields: [studentStudentId], references: [studentId], onDelete: SetNull, onUpdate: SetNull)
-  payment Payment? @relation(fields: [paymentPaymentId], references: [paymentId], onDelete: SetNull, onUpdate: SetNull)
-  month   Month?   @relation(fields: [monthMonthId], references: [monthId], onDelete: NoAction, onUpdate: NoAction)
-  user    User?     @relation(fields: [userUserId], references: [userId], onDelete: SetNull, onUpdate: SetNull)
-  logTrxs LogTrx[]
+  student Student? @relation(fields: [student_student_id], references: [student_id], onDelete: SetNull, onUpdate: SetNull)
+  payment Payment? @relation(fields: [payment_payment_id], references: [payment_id], onDelete: SetNull, onUpdate: SetNull)
+  month   Month?   @relation(fields: [month_month_id], references: [month_id], onDelete: NoAction, onUpdate: NoAction)
+  user    User?    @relation(fields: [user_user_id], references: [user_id], onDelete: SetNull, onUpdate: SetNull)
+  log_trxs LogTrx[]
 
   @@map("bulan")
 }
 
 model BebasPay {
-  bebasPayId        Int       @id @default(autoincrement()) @map("bebas_pay_id")
-  bebasBebasId     Int?      @map("bebas_bebas_id")
-  bebasPayNumber   String?   @map("bebas_pay_number") @db.VarChar(100)
-  bebasPayBill     Decimal?  @map("bebas_pay_bill") @db.Decimal(10, 2)
-  bebasPayDesc     String?   @map("bebas_pay_desc") @db.VarChar(100)
-  userUserId       Int?      @map("user_user_id")
-  bebasPayInputDate DateTime? @map("bebas_pay_input_date") @db.Date
-  bebasPayLastUpdate DateTime? @map("bebas_pay_last_update") @db.Timestamp(0)
-  jurnalId         Int?      @default(0) @map("jurnal_id") @db.UnsignedInt
+  bebas_pay_id        Int       @id @default(autoincrement())
+  bebas_bebas_id      Int?
+  bebas_pay_number    String?   @db.VarChar(100)
+  bebas_pay_bill      Decimal?  @db.Decimal(10, 2)
+  bebas_pay_desc      String?   @db.VarChar(100)
+  user_user_id        Int?
+  bebas_pay_input_date DateTime? @db.Date
+  bebas_pay_last_update DateTime? @db.Timestamp
+  jurnal_id           Int?      @default(0)
 
-  bebas Bebas? @relation(fields: [bebasBebasId], references: [bebasId], onDelete: SetNull, onUpdate: SetNull)
-  user  User?  @relation(fields: [userUserId], references: [userId], onDelete: SetNull, onUpdate: SetNull)
-  logTrxs LogTrx[]
+  bebas Bebas? @relation(fields: [bebas_bebas_id], references: [bebas_id], onDelete: SetNull, onUpdate: SetNull)
+  user  User?  @relation(fields: [user_user_id], references: [user_id], onDelete: SetNull, onUpdate: SetNull)
+  log_trxs LogTrx[]
 
   @@map("bebas_pay")
 }
 
 model Setting {
-  settingId        Int       @id @default(autoincrement()) @map("setting_id")
-  settingName      String?   @map("setting_name") @db.VarChar(255)
-  settingValue     String?   @map("setting_value") @db.Text
-  settingLastUpdate DateTime? @map("setting_last_update") @db.Timestamp(0)
+  setting_id        Int       @id @default(autoincrement())
+  setting_name      String?   @db.VarChar(255)
+  setting_value     String?   @db.Text
+  setting_last_update DateTime? @db.Timestamp
 
   @@map("setting")
 }
 
 model Kredit {
-  kreditId        Int       @id @default(autoincrement()) @map("kredit_id")
-  kreditDate      DateTime? @map("kredit_date") @db.Date
-  kreditDesc      String?   @map("kredit_desc") @db.VarChar(100)
-  kreditValue     Decimal?  @map("kredit_value") @db.Decimal(10, 2)
-  userUserId      Int?      @map("user_user_id") @db.UnsignedInt
-  kreditInputDate DateTime? @map("kredit_input_date") @db.Timestamp(0)
-  kreditLastUpdate DateTime? @map("kredit_last_update") @db.Timestamp(0)
+  kredit_id        Int       @id @default(autoincrement())
+  kredit_date      DateTime? @db.Date
+  kredit_desc      String?   @db.VarChar(100)
+  kredit_value     Decimal?  @db.Decimal(10, 2)
+  user_user_id     Int?
+  kredit_input_date DateTime? @db.Timestamp
+  kredit_last_update DateTime? @db.Timestamp
 
-  user User? @relation(fields: [userUserId], references: [userId], onDelete: SetNull, onUpdate: SetNull)
+  user User? @relation(fields: [user_user_id], references: [user_id], onDelete: SetNull, onUpdate: SetNull)
 
   @@map("kredit")
 }
 
 model Debit {
-  debitId            Int       @id @default(autoincrement()) @map("debit_id")
-  debitDate          DateTime? @map("debit_date") @db.Date
-  debitDesc          String?   @map("debit_desc") @db.VarChar(100)
-  debitValue         Decimal?  @map("debit_value") @db.Decimal(10, 2)
-  userUserId         Int?      @map("user_user_id") @db.UnsignedInt
-  debitInputDate     DateTime? @map("debit_input_date") @db.Timestamp(0)
-  debitLastUpdate    DateTime? @map("debit_last_update") @db.Timestamp(0)
-  accountId          Int?      @map("account_id") @db.UnsignedInt
-  studentId          Int?      @map("student_id") @db.UnsignedInt
-  recipient          String?   @map("recipient") @db.VarChar(150)
-  posId              Int?      @map("pos_id") @db.UnsignedInt
-  jurnalId           Int?      @map("jurnal_id") @db.UnsignedInt
-  ppdbNisn           String?   @map("ppdb_nisn") @db.Char(20)
-  ppdbParticipantId  Int?      @map("ppdb_participant_id") @db.UnsignedInt
-  createdBy          String?   @map("created_by") @db.VarChar(50)
+  debit_id            Int       @id @default(autoincrement())
+  debit_date          DateTime? @db.Date
+  debit_desc          String?   @db.VarChar(100)
+  debit_value         Decimal?  @db.Decimal(10, 2)
+  user_user_id        Int?
+  debit_input_date    DateTime? @db.Timestamp
+  debit_last_update   DateTime? @db.Timestamp
+  account_id          Int?
+  student_id          Int?
+  recipient           String?   @db.VarChar(150)
+  pos_id              Int?
+  jurnal_id           Int?
+  ppdb_nisn           String?   @db.Char(20)
+  ppdb_participant_id Int?
+  created_by          String?   @db.VarChar(50)
 
-  user              User?            @relation(fields: [userUserId], references: [userId], onDelete: SetNull, onUpdate: SetNull)
-  student           Student?         @relation(fields: [studentId], references: [studentId], onDelete: SetNull, onUpdate: SetNull)
-  pos               Pos?             @relation(fields: [posId], references: [posId], onDelete: SetNull, onUpdate: SetNull)
-  ppdbParticipant   PPDBParticipant? @relation(fields: [ppdbParticipantId], references: [id], onDelete: SetNull, onUpdate: SetNull)
+  user              User?            @relation(fields: [user_user_id], references: [user_id], onDelete: SetNull, onUpdate: SetNull)
+  student           Student?         @relation(fields: [student_id], references: [student_id], onDelete: SetNull, onUpdate: SetNull)
+  pos               Pos?             @relation(fields: [pos_id], references: [pos_id], onDelete: SetNull, onUpdate: SetNull)
+  ppdb_participant  PPDBParticipant? @relation(fields: [ppdb_participant_id], references: [id], onDelete: SetNull, onUpdate: SetNull)
 
   @@map("debit")
 }
@@ -273,40 +322,40 @@ model Holiday {
 }
 
 model Letter {
-  letterId    Int       @id @default(autoincrement()) @map("letter_id")
-  letterNumber String?  @map("letter_number") @db.VarChar(100)
-  letterMonth Int?
-  letterYear  Int?
+  letter_id     Int       @id @default(autoincrement())
+  letter_number String?   @db.VarChar(100)
+  letter_month  Int?
+  letter_year   Int?
 
   @@map("letter")
 }
 
 model Information {
-  informationId        Int       @id @default(autoincrement()) @map("information_id")
-  informationTitle     String?   @map("information_title") @db.VarChar(100)
-  informationDesc      String?   @map("information_desc") @db.Text
-  informationImg       String?   @map("information_img") @db.VarChar(255)
-  informationPublish   Boolean   @default(false) @map("information_publish")
-  userUserId           Int?      @map("user_user_id") @db.UnsignedInt
-  informationInputDate DateTime? @map("information_input_date") @db.Timestamp(0)
-  informationLastUpdate DateTime? @map("information_last_update") @db.Timestamp(0)
+  information_id        Int       @id @default(autoincrement())
+  information_title    String?   @db.VarChar(100)
+  information_desc     String?   @db.Text
+  information_img       String?   @db.VarChar(255)
+  information_publish   Boolean   @default(false)
+  user_user_id          Int?
+  information_input_date DateTime? @db.Timestamp
+  information_last_update DateTime? @db.Timestamp
 
-  user User? @relation(fields: [userUserId], references: [userId], onDelete: SetNull, onUpdate: SetNull)
+  user User? @relation(fields: [user_user_id], references: [user_id], onDelete: SetNull, onUpdate: SetNull)
 
   @@map("information")
 }
 
 model LogTrx {
-  logTrxId            Int       @id @default(autoincrement()) @map("log_trx_id")
-  studentStudentId    Int?      @map("student_student_id")
-  bulanBulanId        Int?      @map("bulan_bulan_id")
-  bebasPayBebasPayId  Int?      @map("bebas_pay_bebas_pay_id")
-  logTrxInputDate     DateTime? @map("log_trx_input_date") @db.Timestamp(0)
-  logTrxLastUpdate    DateTime? @map("log_trx_last_update") @db.Timestamp(0)
+  log_trx_id            Int       @id @default(autoincrement())
+  student_student_id     Int?
+  bulan_bulan_id         Int?
+  bebas_pay_bebas_pay_id Int?
+  log_trx_input_date     DateTime? @db.Timestamp
+  log_trx_last_update    DateTime? @db.Timestamp
 
-  student Student?  @relation(fields: [studentStudentId], references: [studentId], onDelete: SetNull, onUpdate: SetNull)
-  bulan   Bulan?    @relation(fields: [bulanBulanId], references: [bulanId], onDelete: SetNull, onUpdate: SetNull)
-  bebasPay BebasPay? @relation(fields: [bebasPayBebasPayId], references: [bebasPayId], onDelete: SetNull, onUpdate: SetNull)
+  student Student?  @relation(fields: [student_student_id], references: [student_id], onDelete: SetNull, onUpdate: SetNull)
+  bulan   Bulan?    @relation(fields: [bulan_bulan_id], references: [bulan_id], onDelete: SetNull, onUpdate: SetNull)
+  bebas_pay BebasPay? @relation(fields: [bebas_pay_bebas_pay_id], references: [bebas_pay_id], onDelete: SetNull, onUpdate: SetNull)
 
   @@map("log_trx")
 }
@@ -314,106 +363,106 @@ model LogTrx {
 model Unit {
   id        Int       @id @default(autoincrement())
   name      String?   @db.VarChar(255)
-  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamp
-  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamp
+  created_at DateTime? @default(now()) @db.Timestamp
+  updated_at DateTime? @default(now()) @updatedAt @db.Timestamp
 
   @@map("unit")
 }
 
 model PPDBParticipant {
-  id                    Int       @id @default(autoincrement())
-  nisn                  String    @db.VarChar(15)
-  password              String    @db.VarChar(255)
-  noPendaftaran         String    @map("no_pendaftaran") @db.VarChar(100)
-  tanggalDaftar         DateTime  @map("tanggal_daftar") @db.Date
-  periodId              Int       @map("period_id")
-  unitId                Int       @map("unit_id")
-  idJarak               Int       @map("id_jarak")
-  asalSekolah           String    @map("asal_sekolah") @db.VarChar(255)
-  namaPeserta           String    @map("nama_peserta") @db.VarChar(50)
-  email                 String    @db.VarChar(50)
-  nomorHp               String    @map("nomor_hp") @db.VarChar(12)
-  jenisKelamin          String    @map("jenis_kelamin") @db.VarChar(1)
-  jumlahSaudaraKandung  String    @map("jumlah_saudara_kandung") @db.VarChar(2)
-  tinggiBadan           String    @map("tinggi_badan") @db.VarChar(3)
-  beratBadan            String    @map("berat_badan") @db.VarChar(3)
-  tinggalBersama         String    @map("tinggal_bersama") @db.VarChar(100)
-  nik                   String    @db.VarChar(16)
-  noKk                  String    @map("no_kk") @db.VarChar(20)
-  tempatLahir           String    @map("tempat_lahir") @db.VarChar(50)
-  tanggalLahir          DateTime  @map("tanggal_lahir") @db.Date
-  agama                 String    @db.VarChar(20)
-  kebutuhanKhusus       String    @map("kebutuhan_khusus") @db.VarChar(50)
-  photo                 String?   @db.VarChar(100)
-  alamat                String    @db.VarChar(50)
-  rt                    String    @db.VarChar(3)
-  rw                    String    @db.VarChar(3)
-  namaDusun             String    @map("nama_dusun") @db.VarChar(50)
-  namaKelurahan         String    @map("nama_kelurahan") @db.VarChar(50)
-  namaKecamatan         String    @map("nama_kecamatan") @db.VarChar(50)
-  namaKabupaten         String    @map("nama_kabupaten") @db.VarChar(50)
-  namaProvinsi          String    @map("nama_provinsi") @db.VarChar(50)
-  kodePos               String    @map("kode_pos") @db.VarChar(5)
-  alamatTinggal         String    @map("alamat_tinggal") @db.VarChar(50)
-  rtTinggal             String    @map("rt_tinggal") @db.VarChar(3)
-  rwTinggal             String    @map("rw_tinggal") @db.VarChar(3)
-  namaDusunTinggal      String    @map("nama_dusun_tinggal") @db.VarChar(50)
-  namaKelurahanTinggal  String    @map("nama_kelurahan_tinggal") @db.VarChar(50)
-  namaKecamatanTinggal  String    @map("nama_kecamatan_tinggal") @db.VarChar(50)
-  namaKabupatenTinggal  String    @map("nama_kabupaten_tinggal") @db.VarChar(50)
-  namaProvinsiTinggal   String    @map("nama_provinsi_tinggal") @db.VarChar(50)
-  kodePosTinggal        String    @map("kode_pos_tinggal") @db.VarChar(5)
-  transportasi          String    @db.VarChar(50)
-  namaAyah              String    @map("nama_ayah") @db.VarChar(50)
-  tahunLahirAyah        Int?      @map("tahun_lahir_ayah")
-  pendidikanAyah        String    @map("pendidikan_ayah") @db.VarChar(50)
-  pekerjaanAyah         String    @map("pekerjaan_ayah") @db.VarChar(50)
-  penghasilanAyah       String    @map("penghasilan_ayah") @db.VarChar(50)
-  namaIbu               String    @map("nama_ibu") @db.VarChar(50)
-  tahunLahirIbu         Int?      @map("tahun_lahir_ibu")
-  pendidikanIbu          String    @map("pendidikan_ibu") @db.VarChar(50)
-  pekerjaanIbu          String    @map("pekerjaan_ibu") @db.VarChar(50)
-  penghasilanIbu        String    @map("penghasilan_ibu") @db.VarChar(50)
-  namaWali              String?   @map("nama_wali") @db.VarChar(50)
-  tahunLahirWali        Int?      @map("tahun_lahir_wali")
-  pendidikanWali         String?   @map("pendidikan_wali") @db.VarChar(50)
-  pekerjaanWali         String?   @map("pekerjaan_wali") @db.VarChar(50)
-  penghasilanWali        String?   @map("penghasilan_wali") @db.VarChar(50)
-  hubunganWali           String?   @map("hubungan_wali") @db.VarChar(50)
-  createdAt              DateTime? @default(now()) @map("created_at") @db.Timestamp
-  updatedAt              DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamp
+  id                    Int            @id @default(autoincrement())
+  nisn                  String         @db.VarChar(15)
+  password              String         @db.VarChar(255)
+  no_pendaftaran        String         @db.VarChar(100)
+  tanggal_daftar        DateTime       @db.Date
+  period_id             Int
+  unit_id               Int
+  id_jarak              Int
+  asal_sekolah          String         @db.VarChar(255)
+  nama_peserta          String         @db.VarChar(50)
+  email                 String         @db.VarChar(50)
+  nomor_hp              String         @db.VarChar(12)
+  jenis_kelamin         Gender
+  jumlah_saudara_kandung String        @db.VarChar(2)
+  tinggi_badan         String         @db.VarChar(3)
+  berat_badan          String         @db.VarChar(3)
+  tinggal_bersama       TinggalBersama
+  nik                   String         @db.VarChar(16)
+  no_kk                String         @db.VarChar(20)
+  tempat_lahir         String         @db.VarChar(50)
+  tanggal_lahir        DateTime       @db.Date
+  agama                Agama
+  kebutuhan_khusus     String?        @db.VarChar(50)
+  photo                String?        @db.VarChar(100)
+  alamat               String         @db.VarChar(50)
+  rt                   String         @db.VarChar(3)
+  rw                   String         @db.VarChar(3)
+  nama_dusun           String         @db.VarChar(50)
+  nama_kelurahan       String         @db.VarChar(50)
+  nama_kecamatan       String         @db.VarChar(50)
+  nama_kabupaten       String         @db.VarChar(50)
+  nama_provinsi        String         @db.VarChar(50)
+  kode_pos             String         @db.VarChar(5)
+  alamat_tinggal       String         @db.VarChar(50)
+  rt_tinggal           String         @db.VarChar(3)
+  rw_tinggal           String         @db.VarChar(3)
+  nama_dusun_tinggal   String         @db.VarChar(50)
+  nama_kelurahan_tinggal String       @db.VarChar(50)
+  nama_kecamatan_tinggal String       @db.VarChar(50)
+  nama_kabupaten_tinggal String       @db.VarChar(50)
+  nama_provinsi_tinggal  String       @db.VarChar(50)
+  kode_pos_tinggal     String         @db.VarChar(5)
+  transportasi         String         @db.VarChar(50)
+  nama_ayah            String         @db.VarChar(50)
+  tahun_lahir_ayah    Int?
+  pendidikan_ayah      Pendidikan
+  pekerjaan_ayah       String         @db.VarChar(50)
+  penghasilan_ayah     String         @db.VarChar(50)
+  nama_ibu             String         @db.VarChar(50)
+  tahun_lahir_ibu     Int?
+  pendidikan_ibu       Pendidikan
+  pekerjaan_ibu        String         @db.VarChar(50)
+  penghasilan_ibu      String         @db.VarChar(50)
+  nama_wali            String?        @db.VarChar(50)
+  tahun_lahir_wali     Int?
+  pendidikan_wali      Pendidikan?
+  pekerjaan_wali       String?       @db.VarChar(50)
+  penghasilan_wali     String?       @db.VarChar(50)
+  hubungan_wali        String?       @db.VarChar(50)
+  created_at           DateTime?     @default(now()) @db.Timestamp
+  updated_at           DateTime?     @default(now()) @updatedAt @db.Timestamp
 
-  debits                Debit[]
-  ppdbBayars            PPDBBayar[]
+  debits      Debit[]
+  ppdb_bayars PPDBBayar[]
 
   @@index([nisn])
   @@map("ppdb_participant")
 }
 
 model PPDBBayar {
-  id                Int       @id @default(autoincrement())
-  nisn              String?   @db.VarChar(15)
-  ppdbParticipantId Int?      @map("ppdb_participant_id")
-  paymentId        Int?      @map("payment_id")
-  amount           Decimal?  @db.Decimal(10, 2)
-  paymentDate      DateTime? @map("payment_date") @db.Date
-  paymentMethod    String?   @map("payment_method") @db.VarChar(50)
-  createdAt        DateTime? @default(now()) @map("created_at") @db.Timestamp
-  updatedAt        DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamp
+  id                Int            @id @default(autoincrement())
+  nisn              String?        @db.VarChar(15)
+  ppdb_participant_id Int?
+  payment_id        Int?
+  amount            Decimal?        @db.Decimal(10, 2)
+  payment_date      DateTime?       @db.Date
+  payment_method    PaymentMethod?
+  created_at        DateTime?      @default(now()) @db.Timestamp
+  updated_at        DateTime?      @default(now()) @updatedAt @db.Timestamp
 
-  ppdbParticipant PPDBParticipant? @relation(fields: [ppdbParticipantId], references: [id], onDelete: SetNull, onUpdate: SetNull)
+  ppdb_participant PPDBParticipant? @relation(fields: [ppdb_participant_id], references: [id], onDelete: SetNull, onUpdate: SetNull)
 
   @@index([nisn])
-  @@index([ppdbParticipantId])
+  @@index([ppdb_participant_id])
   @@map("ppdb_bayar")
 }
 
 model Jurnal {
-  jurnalId   Int       @id @default(autoincrement()) @map("jurnal_id")
-  jurnalName String?   @map("jurnal_name") @db.VarChar(100)
-  jurnalDesc String?   @map("jurnal_desc") @db.Text
-  createdAt  DateTime? @default(now()) @map("created_at") @db.Timestamp(0)
-  updatedAt  DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
+  jurnal_id   Int       @id @default(autoincrement())
+  jurnal_name String?   @db.VarChar(100)
+  jurnal_desc String?   @db.Text
+  created_at  DateTime? @default(now()) @db.Timestamp
+  updated_at  DateTime? @default(now()) @updatedAt @db.Timestamp
 
   @@map("jurnal")
 }
