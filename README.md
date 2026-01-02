@@ -6,7 +6,7 @@ Aplikasi sistem informasi manajemen pesantren yang telah direfactor dari PHP (Co
 
 - **Framework**: Next.js 16 (App Router)
 - **Language**: TypeScript
-- **Database**: MySQL dengan Prisma ORM
+- **Database**: MariaDB dengan Prisma ORM
 - **Authentication**: JWT (JSON Web Tokens)
 - **Styling**: Tailwind CSS
 - **Deployment**: Vercel
@@ -41,7 +41,7 @@ Aplikasi sistem informasi manajemen pesantren yang telah direfactor dari PHP (Co
 
 - Node.js 20+ (atau versi yang didukung)
 - Yarn package manager
-- MySQL database
+- MariaDB database
 - Vercel account (untuk deployment)
 
 ## 🛠️ Setup Development
@@ -68,6 +68,8 @@ Aplikasi sistem informasi manajemen pesantren yang telah direfactor dari PHP (Co
    JWT_SECRET="your-secret-key-here"
    NODE_ENV="development"
    ```
+   
+   **Note**: Meskipun menggunakan MariaDB, connection string tetap menggunakan format `mysql://` karena Prisma menggunakan provider `mysql` untuk MariaDB juga.
 
 4. **Setup Prisma**
    ```bash
