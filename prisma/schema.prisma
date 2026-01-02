@@ -64,6 +64,9 @@ model UserRole {
   role_id   Int    @id @default(autoincrement())
   role_name String? @db.VarChar(100)
   users     User[]
+  created_at DateTime? @default(now()) @db.Timestamp
+  updated_at DateTime? @default(now()) @updatedAt @db.Timestamp
+  deleted_at DateTime? @db.Timestamp
 
   @@map("user_roles")
 }
@@ -87,6 +90,9 @@ model User {
   kredits         Kredit[]
   debits          Debit[]
   informations    Information[]
+  created_at      DateTime? @default(now()) @db.Timestamp
+  updated_at      DateTime? @default(now()) @updatedAt @db.Timestamp
+  deleted_at      DateTime? @db.Timestamp
 
   @@map("users")
 }
@@ -100,6 +106,9 @@ model Log {
   user_id    Int?
 
   user User? @relation(fields: [user_id], references: [user_id], onDelete: SetNull, onUpdate: SetNull)
+  created_at DateTime? @default(now()) @db.Timestamp
+  updated_at DateTime? @default(now()) @updatedAt @db.Timestamp
+  deleted_at DateTime? @db.Timestamp
 
   @@map("logs")
 }
@@ -118,6 +127,9 @@ model Class {
   class_id   Int       @id @default(autoincrement())
   class_name String?   @db.VarChar(45)
   students   Student[]
+  created_at DateTime? @default(now()) @db.Timestamp
+  updated_at DateTime? @default(now()) @updatedAt @db.Timestamp
+  deleted_at DateTime? @db.Timestamp
 
   @@map("class")
 }
@@ -127,6 +139,9 @@ model Major {
   majors_name      String?   @db.VarChar(100)
   majors_short_name String?  @db.VarChar(45)
   students         Student[]
+  created_at       DateTime? @default(now()) @db.Timestamp
+  updated_at       DateTime? @default(now()) @updatedAt @db.Timestamp
+  deleted_at       DateTime? @db.Timestamp
 
   @@map("majors")
 }
@@ -159,6 +174,9 @@ model Student {
   bulan            Bulan[]
   log_trxs         LogTrx[]
   debits           Debit[]
+  created_at       DateTime? @default(now()) @db.Timestamp
+  updated_at       DateTime? @default(now()) @updatedAt @db.Timestamp
+  deleted_at       DateTime? @db.Timestamp
 
   @@map("student")
 }
@@ -169,6 +187,9 @@ model Period {
   period_end    Int?
   period_status Boolean   @default(false)
   payments      Payment[]
+  created_at    DateTime? @default(now()) @db.Timestamp
+  updated_at    DateTime? @default(now()) @updatedAt @db.Timestamp
+  deleted_at    DateTime? @db.Timestamp
 
   @@map("period")
 }
@@ -180,6 +201,9 @@ model Pos {
   jurnal_id       Int?
   payments        Payment[]
   debits          Debit[]
+  created_at      DateTime? @default(now()) @db.Timestamp
+  updated_at      DateTime? @default(now()) @updatedAt @db.Timestamp
+  deleted_at      DateTime? @db.Timestamp
 
   @@map("pos")
 }
@@ -196,6 +220,9 @@ model Payment {
   pos    Pos?    @relation(fields: [pos_pos_id], references: [pos_id], onDelete: SetNull, onUpdate: SetNull)
   bebas  Bebas[]
   bulan  Bulan[]
+  created_at DateTime? @default(now()) @db.Timestamp
+  updated_at DateTime? @default(now()) @updatedAt @db.Timestamp
+  deleted_at DateTime? @db.Timestamp
 
   @@map("payment")
 }
@@ -208,6 +235,9 @@ model Bebas {
   bebas_total_pay   Decimal?  @default(0) @db.Decimal(10, 2)
   bebas_input_date  DateTime? @db.Timestamp
   bebas_last_update DateTime? @db.Timestamp
+  created_at        DateTime? @default(now()) @db.Timestamp
+  updated_at        DateTime? @default(now()) @updatedAt @db.Timestamp
+  deleted_at        DateTime? @db.Timestamp
 
   student Student? @relation(fields: [student_student_id], references: [student_id], onDelete: SetNull, onUpdate: SetNull)
   payment Payment? @relation(fields: [payment_payment_id], references: [payment_id], onDelete: SetNull, onUpdate: SetNull)
@@ -220,6 +250,9 @@ model Month {
   month_id   Int     @id @default(autoincrement())
   month_name String? @db.VarChar(45)
   bulan      Bulan[]
+  created_at DateTime? @default(now()) @db.Timestamp
+  updated_at DateTime? @default(now()) @updatedAt @db.Timestamp
+  deleted_at DateTime? @db.Timestamp
 
   @@map("month")
 }
@@ -236,6 +269,9 @@ model Bulan {
   user_user_id      Int?
   bulan_input_date  DateTime? @db.Timestamp
   bulan_last_update DateTime? @db.Timestamp
+  created_at        DateTime? @default(now()) @db.Timestamp
+  updated_at        DateTime? @default(now()) @updatedAt @db.Timestamp
+  deleted_at        DateTime? @db.Timestamp
 
   student Student? @relation(fields: [student_student_id], references: [student_id], onDelete: SetNull, onUpdate: SetNull)
   payment Payment? @relation(fields: [payment_payment_id], references: [payment_id], onDelete: SetNull, onUpdate: SetNull)
@@ -255,6 +291,9 @@ model BebasPay {
   user_user_id        Int?
   bebas_pay_input_date DateTime? @db.Date
   bebas_pay_last_update DateTime? @db.Timestamp
+  created_at            DateTime? @default(now()) @db.Timestamp
+  updated_at            DateTime? @default(now()) @updatedAt @db.Timestamp
+  deleted_at            DateTime? @db.Timestamp
   jurnal_id           Int?      @default(0)
 
   bebas Bebas? @relation(fields: [bebas_bebas_id], references: [bebas_id], onDelete: SetNull, onUpdate: SetNull)
@@ -269,6 +308,9 @@ model Setting {
   setting_name      String?   @db.VarChar(255)
   setting_value     String?   @db.Text
   setting_last_update DateTime? @db.Timestamp
+  created_at          DateTime? @default(now()) @db.Timestamp
+  updated_at          DateTime? @default(now()) @updatedAt @db.Timestamp
+  deleted_at          DateTime? @db.Timestamp
 
   @@map("setting")
 }
@@ -281,6 +323,9 @@ model Kredit {
   user_user_id     Int?
   kredit_input_date DateTime? @db.Timestamp
   kredit_last_update DateTime? @db.Timestamp
+  created_at         DateTime? @default(now()) @db.Timestamp
+  updated_at         DateTime? @default(now()) @updatedAt @db.Timestamp
+  deleted_at         DateTime? @db.Timestamp
 
   user User? @relation(fields: [user_user_id], references: [user_id], onDelete: SetNull, onUpdate: SetNull)
 
@@ -295,6 +340,9 @@ model Debit {
   user_user_id        Int?
   debit_input_date    DateTime? @db.Timestamp
   debit_last_update   DateTime? @db.Timestamp
+  created_at          DateTime? @default(now()) @db.Timestamp
+  updated_at          DateTime? @default(now()) @updatedAt @db.Timestamp
+  deleted_at          DateTime? @db.Timestamp
   account_id          Int?
   student_id          Int?
   recipient           String?   @db.VarChar(150)
@@ -317,6 +365,9 @@ model Holiday {
   year  Int?
   date  DateTime? @db.Date
   info  String?   @db.VarChar(255)
+  created_at DateTime? @default(now()) @db.Timestamp
+  updated_at DateTime? @default(now()) @updatedAt @db.Timestamp
+  deleted_at DateTime? @db.Timestamp
 
   @@map("holiday")
 }
@@ -326,6 +377,9 @@ model Letter {
   letter_number String?   @db.VarChar(100)
   letter_month  Int?
   letter_year   Int?
+  created_at    DateTime? @default(now()) @db.Timestamp
+  updated_at    DateTime? @default(now()) @updatedAt @db.Timestamp
+  deleted_at    DateTime? @db.Timestamp
 
   @@map("letter")
 }
@@ -339,6 +393,9 @@ model Information {
   user_user_id          Int?
   information_input_date DateTime? @db.Timestamp
   information_last_update DateTime? @db.Timestamp
+  created_at              DateTime? @default(now()) @db.Timestamp
+  updated_at              DateTime? @default(now()) @updatedAt @db.Timestamp
+  deleted_at              DateTime? @db.Timestamp
 
   user User? @relation(fields: [user_user_id], references: [user_id], onDelete: SetNull, onUpdate: SetNull)
 
@@ -352,6 +409,9 @@ model LogTrx {
   bebas_pay_bebas_pay_id Int?
   log_trx_input_date     DateTime? @db.Timestamp
   log_trx_last_update    DateTime? @db.Timestamp
+  created_at            DateTime? @default(now()) @db.Timestamp
+  updated_at            DateTime? @default(now()) @updatedAt @db.Timestamp
+  deleted_at            DateTime? @db.Timestamp
 
   student Student?  @relation(fields: [student_student_id], references: [student_id], onDelete: SetNull, onUpdate: SetNull)
   bulan   Bulan?    @relation(fields: [bulan_bulan_id], references: [bulan_id], onDelete: SetNull, onUpdate: SetNull)
@@ -365,6 +425,7 @@ model Unit {
   name      String?   @db.VarChar(255)
   created_at DateTime? @default(now()) @db.Timestamp
   updated_at DateTime? @default(now()) @updatedAt @db.Timestamp
+  deleted_at DateTime? @db.Timestamp
 
   @@map("unit")
 }
@@ -434,6 +495,7 @@ model PPDBParticipant {
 
   debits      Debit[]
   ppdb_bayars PPDBBayar[]
+  deleted_at  DateTime? @db.Timestamp
 
   @@index([nisn])
   @@map("ppdb_participant")
@@ -449,6 +511,7 @@ model PPDBBayar {
   payment_method    PaymentMethod?
   created_at        DateTime?      @default(now()) @db.Timestamp
   updated_at        DateTime?      @default(now()) @updatedAt @db.Timestamp
+  deleted_at        DateTime?      @db.Timestamp
 
   ppdb_participant PPDBParticipant? @relation(fields: [ppdb_participant_id], references: [id], onDelete: SetNull, onUpdate: SetNull)
 
@@ -463,6 +526,7 @@ model Jurnal {
   jurnal_desc String?   @db.Text
   created_at  DateTime? @default(now()) @db.Timestamp
   updated_at  DateTime? @default(now()) @updatedAt @db.Timestamp
+  deleted_at  DateTime? @db.Timestamp
 
   @@map("jurnal")
 }
