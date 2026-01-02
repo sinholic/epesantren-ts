@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "mysql" // MariaDB uses mysql provider with @prisma/adapter-mariadb
   url      = env("DATABASE_URL")
 }
 

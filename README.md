@@ -68,6 +68,8 @@ Aplikasi sistem informasi manajemen pesantren yang telah direfactor dari PHP (Co
    JWT_SECRET="your-secret-key-here"
    NODE_ENV="development"
    ```
+   
+   **Catatan:** Aplikasi menggunakan **MariaDB** dengan adapter khusus. Connection string tetap menggunakan format `mysql://` karena MariaDB kompatibel dengan MySQL protocol.
 
 4. **Setup Prisma**
    ```bash
