@@ -26,13 +26,13 @@ export default function AdminDashboardPage() {
     try {
       const res = await fetch('/api/auth/me')
       if (!res.ok) {
-        router.push('/manage/auth')
+        router.push('/login')
         return
       }
       const data = await res.json()
       setUser(data.user)
     } catch (error) {
-      router.push('/manage/auth')
+      router.push('/login')
     }
   }
 

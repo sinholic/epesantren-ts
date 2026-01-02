@@ -16,13 +16,13 @@ export default function StudentDashboardPage() {
     try {
       const res = await fetch('/api/student/auth/me')
       if (!res.ok) {
-        router.push('/student/auth')
+        router.push('/login')
         return
       }
       const data = await res.json()
       setStudent(data.student)
     } catch (error) {
-      router.push('/student/auth')
+      router.push('/login')
     } finally {
       setLoading(false)
     }

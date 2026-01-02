@@ -16,13 +16,13 @@ export default function TeacherDashboardPage() {
     try {
       const res = await fetch('/api/teacher/auth/me')
       if (!res.ok) {
-        router.push('/teacher/auth')
+        router.push('/login')
         return
       }
       const data = await res.json()
       setTeacher(data.teacher)
     } catch (error) {
-      router.push('/teacher/auth')
+      router.push('/login')
     } finally {
       setLoading(false)
     }

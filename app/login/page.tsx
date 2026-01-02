@@ -3,9 +3,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-export default function AdminLoginPage() {
+export default function UnifiedLoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -16,10 +16,10 @@ export default function AdminLoginPage() {
     setLoading(true)
 
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }),
       })
 
       const data = await res.json()
@@ -30,7 +30,25 @@ export default function AdminLoginPage() {
         return
       }
 
-      router.push('/manage/dashboard')
+      // Redirect based on role
+      if (data.redirect) {
+        router.push(data.redirect)
+      } else {
+        // Fallback redirect based on role
+        switch (data.role) {
+          case 'admin':
+            router.push('/manage/dashboard')
+            break
+          case 'student':
+            router.push('/student/dashboard')
+            break
+          case 'teacher':
+            router.push('/teacher/dashboard')
+            break
+          default:
+            router.push('/')
+        }
+      }
     } catch (err) {
       setError('An error occurred. Please try again.')
       setLoading(false)
@@ -38,11 +56,14 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">ePesantren</h1>
-          <p className="text-gray-600">Login Admin</p>
+          <p className="text-gray-600">Login ke Sistem</p>
+          <p className="text-sm text-gray-500 mt-2">
+            Masukkan username (Email/NIS/NIP) dan password Anda
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -53,18 +74,21 @@ export default function AdminLoginPage() {
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              Email
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+              Username
             </label>
             <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="admin@example.com"
+              placeholder="Email, NIS, atau NIP"
             />
+            <p className="mt-1 text-xs text-gray-500">
+              Admin: Email | Siswa: NIS | Guru: NIP
+            </p>
           </div>
 
           <div>
@@ -91,8 +115,11 @@ export default function AdminLoginPage() {
           </button>
         </form>
 
-        <div className="mt-6 text-center">
-          <a href="/" className="text-sm text-blue-600 hover:text-blue-800">
+        <div className="mt-6 text-center space-y-2">
+          <a href="/ppdb/auth" className="block text-sm text-orange-600 hover:text-orange-800">
+            Login PPDB →
+          </a>
+          <a href="/" className="block text-sm text-blue-600 hover:text-blue-800">
             ← Kembali ke Portal
           </a>
         </div>
