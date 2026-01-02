@@ -57,6 +57,7 @@ export async function PUT(
     const { id } = await params
     const body = await request.json()
     const {
+      username,
       user_email,
       user_password,
       user_full_name,
@@ -65,6 +66,24 @@ export async function PUT(
     } = body
 
     const updateData: any = {}
+    if (username !== undefined) {
+      // Check if username already exists (excluding current user)
+      const existingUser = await prisma.user.findFirst({
+        where: {
+          username,
+          user_is_deleted: false,
+          user_id: { not: parseInt(id) },
+        },
+      })
+
+      if (existingUser) {
+        return NextResponse.json(
+          { error: 'Username already exists' },
+          { status: 400 }
+        )
+      }
+      updateData.username = username
+    }
     if (user_full_name !== undefined) updateData.user_full_name = user_full_name
     if (user_description !== undefined) updateData.user_description = user_description
     if (user_role_role_id !== undefined) updateData.user_role_role_id = user_role_role_id

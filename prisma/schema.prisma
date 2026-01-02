@@ -80,7 +80,7 @@ model UserRole {
 
 model User {
   user_id          Int       @id @default(autoincrement())
-  username         String?   @unique @db.VarChar(100)
+  username         String   @unique @db.VarChar(100)
   user_email       String?   @db.VarChar(45)
   user_password    String?   @db.VarChar(100)
   user_full_name   String?   @db.VarChar(255)
