@@ -82,11 +82,11 @@ export async function POST(request: NextRequest) {
 
     // Determine redirect path based on role type
     let redirectPath = '/'
-    if (user.user_role_type === 'ADMIN') {
+    if (user.user_role_type === UserRoleType.ADMIN) {
       redirectPath = '/manage/dashboard'
-    } else if (user.user_role_type === 'STUDENT') {
+    } else if (user.user_role_type === UserRoleType.STUDENT) {
       redirectPath = '/student/dashboard'
-    } else if (user.user_role_type === 'TEACHER') {
+    } else if (user.user_role_type === UserRoleType.TEACHER) {
       redirectPath = '/teacher/dashboard'
     }
 
