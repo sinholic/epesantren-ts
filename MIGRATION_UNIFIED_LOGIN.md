@@ -25,8 +25,9 @@ ALTER TABLE users ADD COLUMN user_role_type user_role_type;
 
 -- Update username untuk user yang sudah ada
 -- Admin: gunakan email sebagai username
-UPDATE users 
-SET username = user_email 
+UPDATE users
+SET username = user_email,
+    user_role_type = 'ADMIN'::user_role_type
 WHERE user_email IS NOT NULL AND user_role_role_id = 1; -- Sesuaikan role_id untuk admin
 
 -- Student: perlu mapping dari table student ke users
