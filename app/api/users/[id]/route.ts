@@ -67,10 +67,25 @@ export async function PUT(
 
     const updateData: any = {}
     if (username !== undefined) {
+      // Trim and validate username
+      const trimmedUsername = username.trim()
+      if (trimmedUsername.length < 3 || trimmedUsername.length > 50) {
+        return NextResponse.json(
+          { error: 'Username must be between 3 and 50 characters' },
+          { status: 400 }
+        )
+      }
+      if (!/^[a-zA-Z0-9_-]+$/.test(trimmedUsername)) {
+        return NextResponse.json(
+          { error: 'Username can only contain letters, numbers, underscores, and hyphens' },
+          { status: 400 }
+        )
+      }
+
       // Check if username already exists (excluding current user)
       const existingUser = await prisma.user.findFirst({
         where: {
-          username,
+          username: trimmedUsername,
           user_is_deleted: false,
           user_id: { not: parseInt(id) },
         },
@@ -82,7 +97,7 @@ export async function PUT(
           { status: 400 }
         )
       }
-      updateData.username = username
+      updateData.username = trimmedUsername
     }
     if (user_full_name !== undefined) updateData.user_full_name = user_full_name
     if (user_description !== undefined) updateData.user_description = user_description
