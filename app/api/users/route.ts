@@ -91,12 +91,29 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Normalize and validate username
+    const normalizedUsername = username.trim().toLowerCase()
+
+    if (normalizedUsername.length < 3 || normalizedUsername.length > 30) {
+      return NextResponse.json(
+        { error: 'Username must be between 3 and 30 characters' },
+        { status: 400 }
+      )
+    }
+
+    if (!/^[a-z0-9_-]+$/.test(normalizedUsername)) {
+      return NextResponse.json(
+        { error: 'Username can only contain letters, numbers, underscores, and hyphens' },
+        { status: 400 }
+      )
+    }
+
     // Check if email or username already exists
     const existingUser = await prisma.user.findFirst({
       where: {
         OR: [
           { user_email },
-          { username },
+          { username: normalizedUsername },
         ],
         user_is_deleted: false,
       },
@@ -114,7 +131,7 @@ export async function POST(request: NextRequest) {
 
     const user = await prisma.user.create({
       data: {
-        username,
+        username: normalizedUsername,
         user_email,
         user_password: hashedPassword,
         user_full_name,
