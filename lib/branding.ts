@@ -49,6 +49,66 @@ export function validateHexColor(color: string | null | undefined): string | nul
 }
 
 /**
+ * Validates and sanitizes a logo URL to prevent XSS and other security issues.
+ * Only allows https: URLs or safe relative paths.
+ * Disallows dangerous schemes like data:, javascript:, vbscript:, etc.
+ * 
+ * @param url - The URL string to validate
+ * @returns The validated URL or null if invalid
+ */
+export function validateLogoUrl(url: string | null | undefined): string | null {
+  if (!url || typeof url !== 'string') {
+    return null
+  }
+
+  const trimmed = url.trim()
+  
+  if (trimmed.length === 0) {
+    return null
+  }
+
+  // Disallow dangerous schemes (case-insensitive)
+  const dangerousSchemes = /^(data|javascript|vbscript|file|about|blob):/i
+  if (dangerousSchemes.test(trimmed)) {
+    return null
+  }
+
+  // Check if it's an absolute URL
+  try {
+    const parsedUrl = new URL(trimmed)
+    
+    // Only allow https: protocol
+    if (parsedUrl.protocol !== 'https:') {
+      return null
+    }
+    
+    // Return the validated absolute URL
+    return trimmed
+  } catch {
+    // Not an absolute URL, check if it's a safe relative path
+    // Disallow protocol-relative URLs (//example.com)
+    if (trimmed.startsWith('//')) {
+      return null
+    }
+    
+    // Disallow directory traversal attempts
+    if (trimmed.includes('..')) {
+      return null
+    }
+    
+    // Allow relative paths starting with / or ./
+    // Pattern: /path/to/file or ./path/to/file or just /
+    const safeRelativePath = /^(\/|\.\/)/
+    
+    if (safeRelativePath.test(trimmed)) {
+      return trimmed
+    }
+    
+    return null
+  }
+}
+
+/**
  * Generates a hover color by adding opacity (dd = ~87% opacity).
  * Converts hex color to rgba format for proper opacity support.
  * 
@@ -100,7 +160,7 @@ export async function resolveBranding(hostname: string): Promise<Branding> {
       return {
         appName: process.env.NEXT_PUBLIC_APP_NAME || 'ePesantren',
         schoolName: school.school_name,
-        logoUrl: school.logo_url,
+        logoUrl: validateLogoUrl(school.logo_url),
         primaryColor: validateHexColor(school.primary_color),
       }
     }
@@ -120,7 +180,7 @@ export async function resolveBranding(hostname: string): Promise<Branding> {
         return {
           appName: process.env.NEXT_PUBLIC_APP_NAME || 'ePesantren',
           schoolName: schoolBySubdomain.school_name,
-          logoUrl: schoolBySubdomain.logo_url,
+          logoUrl: validateLogoUrl(schoolBySubdomain.logo_url),
           primaryColor: validateHexColor(schoolBySubdomain.primary_color),
         }
       }
