@@ -181,7 +181,6 @@ export async function resolveBranding(hostname: string): Promise<Branding> {
       }
       
       const schoolBySubdomain = await prisma.school.findFirst({
-      const schoolBySubdomain = await prisma.school.findFirst({
         where: {
           domain: parentDomain,
           deleted_at: null,
