@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
+import jwt, { SignOptions } from 'jsonwebtoken'
 import { prisma } from './prisma'
 
 const JWT_SECRET = process.env.JWT_SECRET as string
@@ -54,7 +54,9 @@ export function generateToken(user: AuthUser, expiresIn: string = '7d'): string 
       roleType: user.user_role_type,
     },
     JWT_SECRET,
-    { expiresIn }
+    {
+      expiresIn: expiresIn,
+    } as SignOptions
   )
 }
 
