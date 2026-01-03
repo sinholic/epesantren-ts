@@ -167,8 +167,20 @@ export async function resolveBranding(hostname: string): Promise<Branding> {
 
     // Try subdomain match (e.g., "school.example.com" -> match "example.com")
     const parts = cleanHostname.split('.')
-    if (parts.length > 2) {
-      const parentDomain = parts.slice(-2).join('.') // Get last 2 parts
+    if (parts.length >= 3) {
+      // Handle common multi-segment TLDs
+      const knownTLDs = ['co.uk', 'ac.uk', 'co.id', 'ac.id', 'school.id', 'go.id']
+      let parentDomain: string
+      
+      // Check if ends with known multi-segment TLD
+      const lastThree = parts.slice(-3).join('.')
+      if (knownTLDs.some(tld => lastThree.endsWith(tld))) {
+        parentDomain = lastThree
+      } else {
+        parentDomain = parts.slice(-2).join('.')
+      }
+      
+      const schoolBySubdomain = await prisma.school.findFirst({
       const schoolBySubdomain = await prisma.school.findFirst({
         where: {
           domain: parentDomain,
