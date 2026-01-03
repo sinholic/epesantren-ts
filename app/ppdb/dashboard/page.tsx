@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useBranding } from '@/components/providers/BrandingProvider'
 
 export default function PPDBDashboardPage() {
   const router = useRouter()
+  const branding = useBranding()
   const [participant, setParticipant] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
@@ -47,7 +49,7 @@ export default function PPDBDashboardPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <h1 className="text-xl font-semibold text-gray-900">ePesantren - Portal PPDB</h1>
+              <h1 className="text-xl font-semibold text-gray-900">{branding.appName} - Portal PPDB</h1>
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-700">{participant?.namaPeserta || participant?.nisn}</span>

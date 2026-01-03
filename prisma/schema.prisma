@@ -539,3 +539,16 @@ model Jurnal {
 
   @@map("jurnal")
 }
+
+model School {
+  id            Int       @id @default(autoincrement())
+  school_name   String    @db.VarChar(255)
+  logo_url      String?   @db.VarChar(255)
+  primary_color String?   @db.VarChar(7)
+  domain        String    @unique @db.VarChar(255)
+  created_at    DateTime? @default(now()) @db.Timestamp
+  updated_at    DateTime? @default(now()) @updatedAt @db.Timestamp
+  deleted_at    DateTime? @db.Timestamp
+
+  @@map("schools")
+}
