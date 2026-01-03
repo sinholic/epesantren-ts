@@ -7,11 +7,72 @@ export interface Branding {
   primaryColor: string | null
 }
 
-const DEFAULT_BRANDING: Branding = {
+export const DEFAULT_BRANDING: Branding = {
   appName: process.env.NEXT_PUBLIC_APP_NAME || 'ePesantren',
   schoolName: 'Sekolah',
   logoUrl: null,
   primaryColor: null,
+}
+
+/**
+ * Validates and sanitizes a hex color string to prevent CSS injection.
+ * Only allows valid hex colors (with or without #, 3 or 6 digits).
+ * 
+ * @param color - The color string to validate
+ * @returns The sanitized hex color (with # prefix) or null if invalid
+ */
+export function validateHexColor(color: string | null | undefined): string | null {
+  if (!color || typeof color !== 'string') {
+    return null
+  }
+
+  // Remove whitespace
+  const trimmed = color.trim()
+
+  // Check if it's a valid hex color pattern
+  // Matches: #RGB, #RRGGBB, RGB, or RRGGBB (case insensitive)
+  const hexPattern = /^#?([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/
+
+  if (!hexPattern.test(trimmed)) {
+    return null
+  }
+
+  // Normalize to 6-digit hex with # prefix
+  let hex = trimmed.replace('#', '')
+  
+  // Expand 3-digit hex to 6-digit
+  if (hex.length === 3) {
+    hex = hex.split('').map(char => char + char).join('')
+  }
+
+  return `#${hex.toLowerCase()}`
+}
+
+/**
+ * Generates a hover color by adding opacity (dd = ~87% opacity).
+ * Converts hex color to rgba format for proper opacity support.
+ * 
+ * @param hexColor - Valid hex color (with # prefix)
+ * @returns rgba color string with opacity, or null if invalid
+ */
+export function generateHoverColor(hexColor: string | null): string | null {
+  if (!hexColor) {
+    return null
+  }
+
+  const validated = validateHexColor(hexColor)
+  if (!validated) {
+    return null
+  }
+
+  // Convert hex to RGB
+  const hex = validated.replace('#', '')
+  const r = parseInt(hex.substring(0, 2), 16)
+  const g = parseInt(hex.substring(2, 4), 16)
+  const b = parseInt(hex.substring(4, 6), 16)
+
+  // Return rgba with ~87% opacity (dd in hex = 221/255 ≈ 0.867)
+  return `rgba(${r}, ${g}, ${b}, 0.87)`
 }
 
 /**
@@ -40,7 +101,7 @@ export async function resolveBranding(hostname: string): Promise<Branding> {
         appName: process.env.NEXT_PUBLIC_APP_NAME || 'ePesantren',
         schoolName: school.school_name,
         logoUrl: school.logo_url,
-        primaryColor: school.primary_color,
+        primaryColor: validateHexColor(school.primary_color),
       }
     }
 
@@ -60,7 +121,7 @@ export async function resolveBranding(hostname: string): Promise<Branding> {
           appName: process.env.NEXT_PUBLIC_APP_NAME || 'ePesantren',
           schoolName: schoolBySubdomain.school_name,
           logoUrl: schoolBySubdomain.logo_url,
-          primaryColor: schoolBySubdomain.primary_color,
+          primaryColor: validateHexColor(schoolBySubdomain.primary_color),
         }
       }
     }

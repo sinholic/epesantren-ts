@@ -44,7 +44,7 @@ export async function upgradePassword(user_id: number, password: string): Promis
   })
 }
 
-export function generateToken(user: AuthUser): string {
+export function generateToken(user: AuthUser, expiresIn: string = '7d'): string {
   return jwt.sign(
     {
       userId: user.user_id,
@@ -54,7 +54,7 @@ export function generateToken(user: AuthUser): string {
       roleType: user.user_role_type,
     },
     JWT_SECRET,
-    { expiresIn: '7d' }
+    { expiresIn }
   )
 }
 

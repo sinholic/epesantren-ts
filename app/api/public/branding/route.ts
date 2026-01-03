@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { resolveBranding } from '@/lib/branding'
+import { resolveBranding, DEFAULT_BRANDING } from '@/lib/branding'
 
 /**
  * Server-side only API route to fetch branding information.
@@ -18,14 +18,6 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error fetching branding:', error)
-    return NextResponse.json(
-      {
-        appName: process.env.NEXT_PUBLIC_APP_NAME || 'ePesantren',
-        schoolName: 'Sekolah',
-        logoUrl: null,
-        primaryColor: null,
-      },
-      { status: 200 } // Return default branding even on error
-    )
+    return NextResponse.json(DEFAULT_BRANDING, { status: 500 })
   }
 }

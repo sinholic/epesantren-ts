@@ -24,8 +24,15 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [checkingAuth, setCheckingAuth] = useState(true)
   const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
 
   useEffect(() => {
+    // Load rememberMe preference from localStorage
+    const savedRememberMe = localStorage.getItem('rememberMe')
+    if (savedRememberMe === 'true') {
+      setRememberMe(true)
+    }
+
     const checkAuth = async () => {
       try {
         const response = await fetch('/api/auth/me')
@@ -64,7 +71,7 @@ export default function LoginPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, rememberMe }),
       })
 
       const data = await response.json()
@@ -168,8 +175,20 @@ export default function LoginPage() {
             )}
 
             <div className="flex justify-between items-center mt-1">
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input className="form-checkbox rounded text-primary focus:ring-primary border-gray-300 h-4 w-4" type="checkbox" />
+              <label className="flex items-center space-x-2 cursor-pointer" htmlFor="rememberMe">
+                <input
+                  id="rememberMe"
+                  name="rememberMe"
+                  aria-label="Remember me on this device"
+                  className="form-checkbox rounded text-primary focus:ring-primary border-gray-300 h-4 w-4"
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => {
+                    const checked = e.target.checked
+                    setRememberMe(checked)
+                    localStorage.setItem('rememberMe', checked ? 'true' : 'false')
+                  }}
+                />
                 <span className="text-sm text-gray-600 dark:text-gray-400">Remember me</span>
               </label>
               <a className="text-sm font-bold text-primary hover:text-primary-hover transition-colors" href="#">Forgot password?</a>

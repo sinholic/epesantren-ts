@@ -3,7 +3,7 @@ import { Inter, Lexend } from 'next/font/google'
 import { headers } from 'next/headers'
 import './globals.css'
 import { BrandingProvider } from '@/components/providers/BrandingProvider'
-import { resolveBranding } from '@/lib/branding'
+import { resolveBranding, generateHoverColor } from '@/lib/branding'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 const lexend = Lexend({ subsets: ['latin'], variable: '--font-lexend' })
@@ -33,7 +33,7 @@ export default async function RootLayout({
             __html: `
               :root {
                 --primary: ${branding.primaryColor};
-                --primary-hover: ${branding.primaryColor}dd;
+                --primary-hover: ${generateHoverColor(branding.primaryColor) || branding.primaryColor};
               }
             `
           }} />
