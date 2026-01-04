@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { username, password } = body
+    const { username, password, rememberMe } = body
 
     if (!username || !password) {
       return NextResponse.json(
@@ -34,6 +34,11 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    // Determine session duration based on rememberMe preference
+    // Default: 7 days, Remember me: 30 days
+    const sessionDuration = rememberMe === true ? 60 * 60 * 24 * 30 : 60 * 60 * 24 * 7
+    const tokenExpiration = rememberMe === true ? '30d' : '7d'
 
     // Authenticate user
     let user
@@ -54,10 +59,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate token
+    // Generate token with appropriate expiration
     let token
     try {
-      token = generateToken(user)
+      token = generateToken(user, tokenExpiration)
     } catch (error) {
       console.error('Token generation error:', error)
       return NextResponse.json(
@@ -66,14 +71,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Set cookie
+    // Set cookie with appropriate expiration based on rememberMe
     try {
       const cookieStore = await cookies()
       cookieStore.set('auth_token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 7, // 7 days
+        maxAge: sessionDuration,
         path: '/',
       })
     } catch (error) {
