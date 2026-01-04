@@ -63,7 +63,7 @@ export default function AdminDashboardPage() {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 font-display">Dashboard</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
           <p className="text-gray-500 mt-1">Welcome back, Administrator. Here's what's happening today.</p>
         </div>
         <div className="flex gap-3 mt-4 md:mt-0">

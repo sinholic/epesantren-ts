@@ -76,7 +76,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             </div>
           )}
           <div>
-            <h1 className="text-lg font-bold text-gray-900 font-display leading-none">{branding.appName}</h1>
+            <h1 className="text-lg font-bold text-gray-900 leading-none">{branding.appName}</h1>
             <p className="text-[10px] text-gray-500 font-medium tracking-wide mt-0.5">{branding.schoolName}</p>
           </div>
         </div>
@@ -126,7 +126,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         {/* Top Header */}
         <header className="h-20 flex items-center justify-between px-8 bg-white border-b border-gray-100 sticky top-0 z-40 bg-opacity-90 backdrop-blur-sm">
           <div>
-            <h2 className="text-xl font-bold text-gray-900 font-display">Overview</h2>
+            <h2 className="text-xl font-bold text-gray-900">Overview</h2>
           </div>
 
           <div className="flex items-center space-x-6">

@@ -103,7 +103,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-row overflow-hidden bg-background-light dark:bg-background-dark text-[#131118] dark:text-white transition-colors duration-200">
+    <div className="flex min-h-screen w-full flex-row overflow-hidden bg-background-light dark:bg-background-dark text-[#131118] dark:text-white transition-colors duration-200 font-sans">
       <div className="w-full lg:w-[30%] flex flex-col bg-white dark:bg-background-dark relative z-20 order-1 lg:order-1 border-r border-gray-100 dark:border-gray-800 shadow-xl lg:shadow-none">
         <div className="absolute top-0 left-0 p-6 lg:p-8 w-full">
           <div className="flex items-center gap-3">
@@ -125,7 +125,7 @@ export default function LoginPage() {
         <div className="flex-1 flex flex-col justify-center px-6 sm:px-12 lg:px-10 xl:px-12 py-12">
           <form className="flex flex-col gap-5 w-full max-w-sm mx-auto" onSubmit={handleSubmit}>
             <div className="text-center mb-4 lg:hidden">
-              <h1 className="text-2xl font-bold font-display text-gray-900 dark:text-white">Welcome Back!</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Welcome Back!</h1>
               <p className="text-gray-500 text-sm">Sign in to continue to {branding.appName}</p>
             </div>
 
