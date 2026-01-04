@@ -174,7 +174,7 @@ export default function LoginPage() {
               </div>
             )}
 
-            <div className="flex justify-between items-center mt-1">
+            <div className="flex items-center mt-1">
               <label className="flex items-center space-x-2 cursor-pointer" htmlFor="rememberMe">
                 <input
                   id="rememberMe"
@@ -191,7 +191,6 @@ export default function LoginPage() {
                 />
                 <span className="text-sm text-gray-600 dark:text-gray-400">Remember me</span>
               </label>
-              <a className="text-sm font-bold text-primary hover:text-primary-hover transition-colors" href="#">Forgot password?</a>
             </div>
 
             <button
