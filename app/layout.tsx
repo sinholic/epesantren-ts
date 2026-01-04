@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Lexend } from 'next/font/google'
 import { headers } from 'next/headers'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import './globals.css'
 import { BrandingProvider } from '@/components/providers/BrandingProvider'
 import { resolveBranding, generateHoverColor } from '@/lib/branding'
@@ -43,6 +44,7 @@ export default async function RootLayout({
         <BrandingProvider branding={branding}>
           {children}
         </BrandingProvider>
+        <SpeedInsights />
       </body>
     </html>
   )
